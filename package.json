@@ -22,9 +22,9 @@
     "url": "git+https://github.com/andreventuravale/nanospec.git"
   },
   "keywords": [
-    "jasmine",
     "bdd",
-    "gherkin"
+    "gherkin",
+    "jasmine"
   ],
   "author": "andreventuravale",
   "license": "MIT",
