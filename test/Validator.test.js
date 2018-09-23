@@ -1,6 +1,6 @@
 const _ = require('lodash')
 const { expect } = require('chai')
-const Parser = require('../lib/Parser')
+const Parser = require('../src/Parser')
 
 function parse (text) {
   const parser = new Parser(text)
