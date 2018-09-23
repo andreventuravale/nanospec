@@ -1,7 +1,7 @@
 {
   "name": "nanospec",
   "version": "1.0.0",
-  "description": "A lightweight library for executing a subset of gkerkin on top of mocha, karma and jasmine.",
+  "description": "A lightweight library for executing a subset of gkerkin on top of mocha and jasmine.",
   "main": "index.js",
   "scripts": {
     "test": "nyc mocha",
