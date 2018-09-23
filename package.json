@@ -1,7 +1,7 @@
 {
   "name": "nanospec",
   "version": "1.0.0",
-  "description": "A naive BDD library that runs on top of jasmine using a subset of gherkin language.",
+  "description": "A lightweight library for executing a subset of gkerkin on top of mocha, karma and jasmine.",
   "main": "index.js",
   "scripts": {
     "test": "mocha",
