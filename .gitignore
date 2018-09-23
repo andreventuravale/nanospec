@@ -1,0 +1,6 @@
+.DS_Store
+.antlr/
+.idea
+.vscode
+node_modules
+dist

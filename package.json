@@ -1,0 +1,47 @@
+{
+  "name": "nanospec",
+  "version": "1.0.0",
+  "description": "A naive BDD library that runs on top of jasmine using a subset of gherkin language.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha",
+    "test:watch": "mocha --watch",
+    "grammar": "./node_modules/antlr4-cli/bin/antlr4.js -Dlanguage=JavaScript -o ./dist/parser NanoSpec.g4",
+    "grammar:watch": "chokidar NanoSpec.g4 -c './node_modules/antlr4-cli/bin/antlr4.js -Dlanguage=JavaScript -o ./dist/parser NanoSpec.g4'"
+  },
+  "standard": {
+    "globals": [
+      "it",
+      "describe",
+      "beforeEach",
+      "afterEach"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andreventuravale/nanospec.git"
+  },
+  "keywords": [
+    "jasmine",
+    "bdd",
+    "gherkin"
+  ],
+  "author": "andreventuravale",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/andreventuravale/nanospec/issues"
+  },
+  "homepage": "https://github.com/andreventuravale/nanospec#readme",
+  "devDependencies": {
+    "antlr4": "^4.7.1",
+    "antlr4-cli": "^4.5.3",
+    "chokidar": "^2.0.4",
+    "chokidar-cli": "^1.2.0",
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "standard": "^11.0.1"
+  },
+  "dependencies": {
+    "lodash": "^4.17.10"
+  }
+}
