@@ -1,6 +1,6 @@
 .DS_Store
 .antlr/
-.idea
+.nyc_output
 .vscode
-node_modules
 dist
+node_modules

@@ -1,7 +1,7 @@
 const _ = require('lodash')
-const { NanoSpecLexer } = require('../dist/parser/NanoSpecLexer')
-const { NanoSpecListener } = require('../dist/parser/NanoSpecListener')
-const { NanoSpecParser } = require('../dist/parser/NanoSpecParser')
+const { NanoSpecLexer } = require('../lib/parser/NanoSpecLexer')
+const { NanoSpecListener } = require('../lib/parser/NanoSpecListener')
+const { NanoSpecParser } = require('../lib/parser/NanoSpecParser')
 const antlr4 = require('antlr4')
 
 class Listener extends NanoSpecListener {

@@ -6,8 +6,8 @@
   "scripts": {
     "test": "nyc mocha",
     "test:watch": "mocha --watch",
-    "grammar": "./node_modules/antlr4-cli/bin/antlr4.js -Dlanguage=JavaScript -o ./dist/parser NanoSpec.g4",
-    "grammar:watch": "chokidar NanoSpec.g4 -c './node_modules/antlr4-cli/bin/antlr4.js -Dlanguage=JavaScript -o ./dist/parser NanoSpec.g4'"
+    "grammar": "./node_modules/antlr4-cli/bin/antlr4.js -Dlanguage=JavaScript -o ./lib/parser NanoSpec.g4",
+    "grammar:watch": "chokidar NanoSpec.g4 -c './node_modules/antlr4-cli/bin/antlr4.js -Dlanguage=JavaScript -o ./lib/parser NanoSpec.g4'"
   },
   "standard": {
     "globals": [
