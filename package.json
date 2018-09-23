@@ -4,7 +4,7 @@
   "description": "A lightweight library for executing a subset of gkerkin on top of mocha, karma and jasmine.",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
+    "test": "nyc mocha",
     "test:watch": "mocha --watch",
     "grammar": "./node_modules/antlr4-cli/bin/antlr4.js -Dlanguage=JavaScript -o ./dist/parser NanoSpec.g4",
     "grammar:watch": "chokidar NanoSpec.g4 -c './node_modules/antlr4-cli/bin/antlr4.js -Dlanguage=JavaScript -o ./dist/parser NanoSpec.g4'"
@@ -35,10 +35,11 @@
   "devDependencies": {
     "antlr4": "^4.7.1",
     "antlr4-cli": "^4.5.3",
+    "chai": "^4.1.2",
     "chokidar": "^2.0.4",
     "chokidar-cli": "^1.2.0",
-    "chai": "^4.1.2",
     "mocha": "^5.2.0",
+    "nyc": "^13.0.1",
     "standard": "^11.0.1"
   },
   "dependencies": {
