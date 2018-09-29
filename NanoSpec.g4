@@ -39,15 +39,39 @@ statementKeyword: (EXAMPLE | BACKGROUND | SCENARIO | SCENARIO_OUTLINE);
 
 summary: text (NL+ text)*;
 
-steps: step (NL+ step)*;
+steps: givenSteps
+       whenSteps
+       thenSteps;
 
-step:
-  e
-  stepKeyword
-  WS*
-  text
-  NL*
-  ;
+givenSteps: given
+          ( and +
+            but ?
+          | and *
+          );
+
+whenSteps: when
+         ( and +
+           but ?
+         | and *
+         );
+
+thenSteps: then
+         ( and +
+           but ?
+         | and *
+         );
+
+// step: e stepKeyword WS* text NL*;
+
+given: e GIVEN WS* text NL*;
+when: e WHEN WS* text NL*;
+then: e THEN WS* text NL*;
+and: e AND WS* text NL*;
+but: e BUT WS* text NL*;
+
+// steps: step (NL+ step)*;
+
+// step: e stepKeyword WS* text NL*;
 
 stepKeyword: (GIVEN | WHEN | THEN | AND | BUT);
 

@@ -88,12 +88,26 @@ class Listener extends NanoSpecListener {
     }
   }
 
+  enterSteps () {
+  }
+
+  exitSteps (ctx) {
+    if (ctx.givenSteps) { this.exitStep(ctx.givenSteps(), 'given', 'GIVEN') }
+    if (ctx.whenSteps) { this.exitStep(ctx.whenSteps(), 'when', 'WHEN') }
+    if (ctx.thenSteps) { this.exitStep(ctx.thenSteps(), 'then', 'THEN') }
+  }
+
   enterStep () {
     this.step = {}
   }
 
-  exitStep (ctx) {
-    const stepKeyword = ctx.stepKeyword()
+  addStep (ctx, keyword) {
+    if (!ctx) return
+
+    const stepKeyword = ctx[keyword]()
+
+    this.enterStep()
+
     const text = ctx.text()
 
     if (text) {
@@ -115,6 +129,20 @@ class Listener extends NanoSpecListener {
         this.step.params = _.sortBy(this.step.params, 'name')
       }
     }
+  }
+
+  exitStep (stepsCtx, step, keyword) {
+    if (!stepsCtx) return
+
+    const ctx = stepsCtx[step]()
+
+    if (!ctx) return
+
+    this.addStep(ctx, keyword)
+
+    _.each(stepsCtx.and(), ctx => this.addStep(ctx, 'AND'))
+
+    this.addStep(stepsCtx.but(), 'BUT')
   }
 }
 

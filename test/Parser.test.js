@@ -112,21 +112,47 @@ describe('Parser', () => {
             statementType: 'scenario',
             title: 'Quis autem vel eum',
             nodes: [
-              {
-                type: 'step',
-                stepType: 'given',
-                text: 'taque earum rerum'
-              },
-              {
-                type: 'step',
-                stepType: 'when',
-                text: 'minus id quod maxime'
-              },
-              {
-                type: 'step',
-                stepType: 'then',
-                text: 'et expedita distinctio'
-              }
+              { type: 'step', stepType: 'given', text: 'taque earum rerum' },
+              { type: 'step', stepType: 'when', text: 'minus id quod maxime' },
+              { type: 'step', stepType: 'then', text: 'et expedita distinctio' }
+            ]
+          }
+        ]
+      }
+    )
+  })
+
+  it.only('Parses "given" steps with ands and a but', () => {
+    const metadata = parse(`
+
+      Feature : Lorem ipsum
+
+      Scenario : Quis autem vel eum
+
+        Given taque earum rerum
+        And taque
+        And earum
+        But rerum
+        When minus id quod maxime
+        Then et expedita distinctio
+    `)
+
+    expect(metadata).to.deep.eql(
+      {
+        type: 'feature',
+        title: 'Lorem ipsum',
+        nodes: [
+          {
+            type: 'statement',
+            statementType: 'scenario',
+            title: 'Quis autem vel eum',
+            nodes: [
+              { type: 'step', stepType: 'given', text: 'taque earum rerum' },
+              { type: 'step', stepType: 'and', text: 'taque' },
+              { type: 'step', stepType: 'and', text: 'earum' },
+              { type: 'step', stepType: 'but', text: 'rerum' },
+              { type: 'step', stepType: 'when', text: 'minus id quod maxime' },
+              { type: 'step', stepType: 'then', text: 'et expedita distinctio' }
             ]
           }
         ]
