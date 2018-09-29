@@ -1,10 +1,22 @@
-
+const _ = require('lodash')
 const { expect } = require('chai')
+const { inspect } = require('util')
 const Parser = require('../src/Parser')
 
-function parse (text) {
+function walkNodes (parent, action) {
+  action(parent)
+  _.each(parent.nodes, child => {
+    walkNodes(child, action)
+  })
+}
+
+function parse (text, { preserveLocation } = { preserveLocation: false }) {
   const parser = new Parser(text)
   const metadata = parser.parse(text)
+  console.log(inspect(metadata))
+  if (!preserveLocation) {
+    walkNodes(metadata, node => { delete node.at })
+  }
   return metadata
 }
 
@@ -78,7 +90,7 @@ describe('Parser', () => {
     )
   })
 
-  it('Parses a basic feature with a single scenario and some steps', () => {
+  it.only('Parses a basic feature with a single scenario and some steps', () => {
     const metadata = parse(`
 
       Feature : Lorem ipsum
@@ -279,7 +291,7 @@ describe('Parser', () => {
     )
   })
 
-  it('Parses many at of same parameter', () => {
+  it('Parses many parameters having same name', () => {
     const metadata = parse(`
 
       Feature : Ut enim ad minima veniam

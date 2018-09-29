@@ -1,4 +1,5 @@
 const _ = require('lodash')
+const { inspect } = require('util')
 const { NanoSpecLexer } = require('../lib/parser/NanoSpecLexer')
 const { NanoSpecListener } = require('../lib/parser/NanoSpecListener')
 const { NanoSpecParser } = require('../lib/parser/NanoSpecParser')
@@ -96,12 +97,15 @@ class Listener extends NanoSpecListener {
     const text = ctx.text()
 
     if (text) {
+      const { line, column, start: offset } = text.start
+
       _.merge(
         this.step,
         {
           type: 'step',
           stepType: stepKeyword && _.lowerCase(stepKeyword.getText()),
-          text: text && _.trim(text.getText())
+          text: text && _.trim(text.getText()),
+          at: { line, column, offset }
         }
       )
 
