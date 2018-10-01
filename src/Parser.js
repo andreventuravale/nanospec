@@ -1,5 +1,4 @@
 const _ = require('lodash')
-const { inspect } = require('util')
 const { NanoSpecLexer } = require('../lib/parser/NanoSpecLexer')
 const { NanoSpecListener } = require('../lib/parser/NanoSpecListener')
 const { NanoSpecParser } = require('../lib/parser/NanoSpecParser')
@@ -61,9 +60,6 @@ class Listener extends NanoSpecListener {
     this.statements.push(this.statement)
   }
 
-  enterParam () {
-  }
-
   exitParam (ctx) {
     const name = ctx.WORD && _.trim(ctx.WORD().getText())
 
@@ -88,25 +84,24 @@ class Listener extends NanoSpecListener {
     }
   }
 
-  enterSteps () {
-  }
+  enterGiven (ctx) { this._enterStep(ctx) }
+  enterWhen (ctx) { this._enterStep(ctx) }
+  enterThen (ctx) { this._enterStep(ctx) }
+  enterAnd (ctx) { this._enterStep(ctx) }
+  enterBut (ctx) { this._enterStep(ctx) }
 
-  exitSteps (ctx) {
-    if (ctx.givenSteps) { this.exitStep(ctx.givenSteps(), 'given', 'GIVEN') }
-    if (ctx.whenSteps) { this.exitStep(ctx.whenSteps(), 'when', 'WHEN') }
-    if (ctx.thenSteps) { this.exitStep(ctx.thenSteps(), 'then', 'THEN') }
-  }
+  exitGiven (ctx) { this._exitStep(ctx, 'GIVEN') }
+  exitWhen (ctx) { this._exitStep(ctx, 'WHEN') }
+  exitThen (ctx) { this._exitStep(ctx, 'THEN') }
+  exitAnd (ctx) { this._exitStep(ctx, 'AND') }
+  exitBut (ctx) { this._exitStep(ctx, 'BUT') }
 
-  enterStep () {
+  _enterStep () {
     this.step = {}
   }
 
-  addStep (ctx, keyword) {
-    if (!ctx) return
-
+  _exitStep (ctx, keyword) {
     const stepKeyword = ctx[keyword]()
-
-    this.enterStep()
 
     const text = ctx.text()
 
@@ -129,20 +124,6 @@ class Listener extends NanoSpecListener {
         this.step.params = _.sortBy(this.step.params, 'name')
       }
     }
-  }
-
-  exitStep (stepsCtx, step, keyword) {
-    if (!stepsCtx) return
-
-    const ctx = stepsCtx[step]()
-
-    if (!ctx) return
-
-    this.addStep(ctx, keyword)
-
-    _.each(stepsCtx.and(), ctx => this.addStep(ctx, 'AND'))
-
-    this.addStep(stepsCtx.but(), 'BUT')
   }
 }
 

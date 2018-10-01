@@ -11,67 +11,33 @@ primary: WORD | param;
 text: WS* primary (WS+ primary)*;
 
 feature:
-  e
-  tag?
-  NL*
-  e
-  FEATURE
-  WS*
-  COLON
-  text
-  NL*
-  summary?
-  statement?
-  ;
+	e tag? NL* e FEATURE WS* COLON text NL* summary? statement?;
 
 statement:
-  e
-  statementKeyword
-  WS*
-  COLON
-  text
-  NL*
-  summary?
-  steps?
-  ;
+	e statementKeyword WS* COLON text NL* summary? steps?;
 
-statementKeyword: (EXAMPLE | BACKGROUND | SCENARIO | SCENARIO_OUTLINE);
+statementKeyword: (
+		EXAMPLE
+		| BACKGROUND
+		| SCENARIO
+		| SCENARIO_OUTLINE
+	);
 
 summary: text (NL+ text)*;
 
-steps: givenSteps
-       whenSteps
-       thenSteps;
+steps: givenSteps whenSteps thenSteps;
 
-givenSteps: given
-          ( and +
-            but ?
-          | and *
-          );
+givenSteps: given ( and+ but? | and*);
 
-whenSteps: when
-         ( and +
-           but ?
-         | and *
-         );
+whenSteps: when ( and+ but? | and*);
 
-thenSteps: then
-         ( and +
-           but ?
-         | and *
-         );
-
-// step: e stepKeyword WS* text NL*;
+thenSteps: then ( and+ but? | and*);
 
 given: e GIVEN WS* text NL*;
 when: e WHEN WS* text NL*;
 then: e THEN WS* text NL*;
 and: e AND WS* text NL*;
 but: e BUT WS* text NL*;
-
-// steps: step (NL+ step)*;
-
-// step: e stepKeyword WS* text NL*;
 
 stepKeyword: (GIVEN | WHEN | THEN | AND | BUT);
 
@@ -104,7 +70,7 @@ fragment X: ('X' | 'x');
 fragment Y: ('Y' | 'y');
 fragment Z: ('Z' | 'z');
 
-fragment ID: ('A'..'Z' | 'a'..'z' | '_');
+fragment ID: ('A' ..'Z' | 'a' ..'z' | '_');
 
 FEATURE: F E A T U R E;
 EXAMPLE: E X A M P L E;
@@ -124,4 +90,4 @@ LT: '<';
 GT: '>';
 COMMENT_CHAR: '#';
 TAG: '@' ID+;
-WORD: [!"#$%&'()*+,-./0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ]+;
+WORD:	[!"#$%&'()*+,-./0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ]+;
