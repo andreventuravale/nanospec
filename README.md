@@ -1,21 +1,17 @@
-[![Build Status](https://travis-ci.org/andreventuravale/nanospec.svg?branch=master)](https://travis-ci.org/andreventuravale/nanospec) [![Coverage Status](https://coveralls.io/repos/github/andreventuravale/nanospec/badge.svg?branch=master)](https://coveralls.io/github/andreventuravale/nanospec?branch=master) ![stability-wip](https://img.shields.io/badge/stability-work_in_progress-lightgrey.svg)
+[![Build Status](https://travis-ci.org/andreventuravale/nanospec.svg?branch=master)](https://travis-ci.org/andreventuravale/nanospec) [![Coverage Status](https://coveralls.io/repos/github/andreventuravale/nanospec/badge.svg?branch=master)](https://coveralls.io/github/andreventuravale/nanospec?branch=master) ![stability-wip](https://img.shields.io/badge/stability-working%20in%20progress-blue.svg)
 
 ---
 
-### Progress
+### To do ...
 
-* Parser
-  * Backgrounds
-  * Examples
-  * Features
-  * Scenarios
-  * Step parameters
-    * Location on source
-  * Steps
-    * And
-    * But
-    * Given
-    * Then
-    * When
-    * Parameters
-  * Tags
+- [ ] Friendly error messages directly from ANTLR
+- [ ] Check for false positives
+- [ ] Check grammar conciseness
+- [ ] Architecture diagram
+
+### Roadmap
+
+- [ ] Parser
+- [ ] Mocha runner
+- [ ] Karma/Jasmine runner
+- [ ] I18n
