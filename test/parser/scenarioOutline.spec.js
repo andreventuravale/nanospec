@@ -9,9 +9,9 @@ describe('Parser / Scenario Outline', () => {
 
       Scenario Outline: Ut enim ad minima veniam
 
-        Given Nemo enim <ipsam> voluptatem
-        When Sed quia <non> numquam eius
-        Then Ut enim ad <minima> veniam
+        Given Nemo enim ipsam voluptatem
+        When Sed quia non numquam eius
+        Then Ut enim ad minima veniam
         And Architecto beatae vitae
     `)
 
@@ -29,35 +29,17 @@ describe('Parser / Scenario Outline', () => {
               {
                 type: 'step',
                 stepType: 'given',
-                text: 'Nemo enim <ipsam> voluptatem',
-                params: [
-                  {
-                    name: 'ipsam',
-                    at: [11]
-                  }
-                ]
+                text: 'Nemo enim ipsam voluptatem'
               },
               {
                 type: 'step',
                 stepType: 'when',
-                text: 'Sed quia <non> numquam eius',
-                params: [
-                  {
-                    name: 'non',
-                    at: [10]
-                  }
-                ]
+                text: 'Sed quia non numquam eius'
               },
               {
                 type: 'step',
                 stepType: 'then',
-                text: 'Ut enim ad <minima> veniam',
-                params: [
-                  {
-                    name: 'minima',
-                    at: [12]
-                  }
-                ]
+                text: 'Ut enim ad minima veniam'
               },
               {
                 type: 'step',

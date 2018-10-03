@@ -8,6 +8,9 @@
 - [ ] Check for false positives
 - [ ] Check grammar conciseness
 - [ ] Architecture diagram
+- [ ] Commit hooks
+  - [ ] Run tests
+  - [ ] Lint with standard
 
 ### Roadmap
 

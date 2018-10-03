@@ -15,7 +15,13 @@ function walkNodes (parent, action) {
 }
 
 module.exports = {
-  parse (text, { preserveLocation } = { preserveLocation: false }) {
+  parse (text, {
+    preserveLocation,
+    preserveParamLocation
+  } = {
+      preserveLocation: false,
+      preserveParamLocation: true
+    }) {
     if (!text) {
       return undefined
     }
@@ -25,8 +31,14 @@ module.exports = {
     const metadata = parser.parse()
 
     if (metadata) {
-      if (!preserveLocation) {
-        walkNodes(metadata, node => { delete node.at })
+      if (!preserveLocation || !preserveParamLocation) {
+        walkNodes(metadata, node => {
+          if (node.type !== 'parameter' && !preserveLocation) {
+            delete node.at
+          } else if (node.type === 'parameter' && !preserveParamLocation) {
+            delete node.at
+          }
+        })
       }
     }
 

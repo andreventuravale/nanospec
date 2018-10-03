@@ -64,9 +64,9 @@ class Listener extends NanoSpecListener {
     const name = ctx.WORD && _.trim(ctx.WORD().getText())
 
     if (name) {
-      this.step.params = this.step.params || []
+      this.step.nodes = this.step.nodes || []
 
-      const param = _.find(this.step.params, { name })
+      const param = _.find(this.step.nodes, { type: 'parameter', name })
 
       const where = ctx.WORD().symbol.column -
         ctx.WORD().parentCtx.parentCtx.parentCtx.start.column
@@ -74,8 +74,9 @@ class Listener extends NanoSpecListener {
       if (param) {
         param.at.push(where)
       } else {
-        this.step.params.push(
+        this.step.nodes.push(
           {
+            type: 'parameter',
             name,
             at: [where]
           }
@@ -119,10 +120,6 @@ class Listener extends NanoSpecListener {
       )
 
       this.steps.push(this.step)
-
-      if (this.step.params) {
-        this.step.params = _.sortBy(this.step.params, 'name')
-      }
     }
   }
 }
