@@ -1,6 +1,6 @@
 grammar NanoSpec;
 
-startRule: e comment? feature e EOF;
+startRule: e comment? feature? e EOF;
 
 comment: WS* COMMENT_CHAR text? NL*;
 

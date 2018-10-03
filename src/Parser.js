@@ -139,7 +139,6 @@ module.exports = class {
     const parser = new NanoSpecParser(tokens)
     parser.buildParseTrees = true
     const ast = parser.startRule()
-    console.log('`' + ast.getText() + '`')
     const listener = new Listener()
     antlr4.tree.ParseTreeWalker.DEFAULT.walk(listener, ast)
     return listener.metadata

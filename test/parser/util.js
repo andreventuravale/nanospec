@@ -16,12 +16,18 @@ function walkNodes (parent, action) {
 
 module.exports = {
   parse (text, { preserveLocation } = { preserveLocation: false }) {
+    if (!text) {
+      return undefined
+    }
+
     const parser = new Parser(text)
 
-    const metadata = parser.parse(text)
+    const metadata = parser.parse()
 
-    if (!preserveLocation) {
-      walkNodes(metadata, node => { delete node.at })
+    if (metadata) {
+      if (!preserveLocation) {
+        walkNodes(metadata, node => { delete node.at })
+      }
     }
 
     return metadata
