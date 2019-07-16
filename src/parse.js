@@ -3,11 +3,20 @@ const {
   acceptLiteral, compose, ignoreEmptyLines, optional, parseLine
 } = require('./util')
 
-const parseBackgroundKeyword = parseKeyword('background:BACKGROUND:', { type: 'statement', statementType: 'background' })
+const parseBackgroundKeyword = parseKeyword(
+  'background:BACKGROUND:',
+  { type: 'statement', statementType: 'background' }
+)
 
-const parseScenarioKeyword = parseKeyword('scenario:SCENARIO:', { type: 'statement', statementType: 'scenario' })
+const parseScenarioKeyword = parseKeyword(
+  'scenario:SCENARIO:',
+  { type: 'statement', statementType: 'scenario' }
+)
 
-const parseFeatureKeyword = parseKeyword('feature:FEATURE:', { type: 'feature' })
+const parseFeatureKeyword = parseKeyword(
+  'feature:FEATURE:',
+  { type: 'feature' }
+)
 
 const parseBackground = compose(
   parseBackgroundKeyword,
