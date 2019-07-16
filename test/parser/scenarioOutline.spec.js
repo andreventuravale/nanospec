@@ -1,8 +1,8 @@
 const { expect } = require('chai')
 const { parse } = require('./util')
 
-describe('Parser / Scenario Outline', () => {
-  it('Parses a scenario outline with some steps', () => {
+suite('Parser / Scenario Outline', () => {
+  test('Parses a scenario outline with some steps', () => {
     const metadata = parse(`
 
       Feature : Ut enim ad minima veniam

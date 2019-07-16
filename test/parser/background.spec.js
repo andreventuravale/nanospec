@@ -1,8 +1,8 @@
 const { expect } = require('chai')
 const { parse } = require('./util')
 
-describe('Parser / Background', () => {
-  it('Parses a background with some steps', () => {
+suite('Parser / Background', () => {
+  test('Parses a background with some steps', () => {
     const metadata = parse(`
 
       Feature : Lorem ipsum

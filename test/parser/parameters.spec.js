@@ -1,8 +1,8 @@
 const { expect } = require('chai')
 const { parse } = require('./util')
 
-describe('Parser / Parameters', () => {
-  it('Parses many parameters having same name', () => {
+suite('Parser / Parameters', () => {
+  test('Parses many parameters having same name', () => {
     const metadata = parse(`
 
       Feature : Ut enim ad minima veniam

@@ -1,8 +1,8 @@
 const { expect } = require('chai')
 const { parse } = require('./util')
 
-describe('Parser / Tag', () => {
-  it('Parses feature level tag', () => {
+suite('Parser / Tag', () => {
+  test('Parses feature level tag', () => {
     const metadata = parse(`
       @tag
       Feature : Lorem ipsum

@@ -1,8 +1,8 @@
 const { expect } = require('chai')
 const { parse } = require('./util')
 
-describe('Parser / Example', () => {
-  it('Parses a example with some steps', () => {
+suite('Parser / Example', () => {
+  test('Parses a example with some steps', () => {
     const metadata = parse(`
 
       Feature : Lorem ipsum

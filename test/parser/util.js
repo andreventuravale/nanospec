@@ -1,6 +1,6 @@
-const _ = require('lodash')
 const { inspect } = require('util')
-const Parser = require('../../src/Parser')
+
+const { parse } = require('../../src/parse')
 
 global.inspect = function (data) {
   console.log(inspect(data, true, 100, true))
@@ -9,7 +9,7 @@ global.inspect = function (data) {
 function walkNodes (parent, action) {
   action(parent)
 
-  _.each(parent.nodes, child => {
+  parent.nodes.forEach(child => {
     walkNodes(child, action)
   })
 }
@@ -26,21 +26,19 @@ module.exports = {
       return undefined
     }
 
-    const parser = new Parser(text)
+    const metadata = parse(text)
 
-    const metadata = parser.parse()
-
-    if (metadata) {
-      if (!preserveLocation || !preserveParamLocation) {
-        walkNodes(metadata, node => {
-          if (node.type !== 'parameter' && !preserveLocation) {
-            delete node.at
-          } else if (node.type === 'parameter' && !preserveParamLocation) {
-            delete node.at
-          }
-        })
-      }
-    }
+    // if (metadata) {
+    //   if (!preserveLocation || !preserveParamLocation) {
+    //     walkNodes(metadata, node => {
+    //       if (node.type !== 'parameter' && !preserveLocation) {
+    //         delete node.at
+    //       } else if (node.type === 'parameter' && !preserveParamLocation) {
+    //         delete node.at
+    //       }
+    //     })
+    //   }
+    // }
 
     return metadata
   }

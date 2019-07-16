@@ -1,20 +1,17 @@
 {
   "name": "nanospec",
   "version": "1.0.1",
-  "description": "A lightweight library for executing a subset of gkerkin on top of mocha and jasmine.",
-  "main": "index.js",
+  "description": "A javascript parser for the Gherkin language.",
   "scripts": {
-    "test": "nyc mocha 'test/**/*.spec.js'",
-    "test:watch": "mocha 'test/**/*.spec.js' --watch",
-    "grammar": "./node_modules/antlr4-cli/bin/antlr4.js -Dlanguage=JavaScript -o ./lib/parser NanoSpec.g4",
-    "grammar:watch": "chokidar NanoSpec.g4 -c './node_modules/antlr4-cli/bin/antlr4.js -Dlanguage=JavaScript -o ./lib/parser NanoSpec.g4'"
+    "test": "mocha -ui tdd --recursive test",
+    "test:watch": "mocha -ui tdd -watch --recursive test"
   },
   "standard": {
     "globals": [
-      "it",
-      "describe",
-      "beforeEach",
-      "afterEach"
+      "setup",
+      "suite",
+      "teardown",
+      "test"
     ]
   },
   "repository": {
@@ -24,7 +21,8 @@
   "keywords": [
     "bdd",
     "gherkin",
-    "jasmine"
+    "jasmine",
+    "mocha"
   ],
   "author": "andreventuravale",
   "license": "MIT",
@@ -33,17 +31,11 @@
   },
   "homepage": "https://github.com/andreventuravale/nanospec#readme",
   "devDependencies": {
-    "antlr4": "^4.7.1",
-    "antlr4-cli": "^4.5.3",
-    "chai": "^4.1.2",
-    "chokidar": "^2.0.4",
-    "chokidar-cli": "^1.2.0",
-    "coveralls": "^3.0.2",
-    "mocha": "^5.2.0",
-    "nyc": "^13.0.1",
-    "standard": "^11.0.1"
-  },
-  "dependencies": {
-    "lodash": "^4.17.10"
+    "chai": "^4.2.0",
+    "coveralls": "^3.0.4",
+    "mocha": "^6.1.4",
+    "nyc": "^14.1.1",
+    "standard": "^12.0.1",
+    "testdouble": "^3.12.1"
   }
 }

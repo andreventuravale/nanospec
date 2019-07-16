@@ -1,8 +1,8 @@
 const { expect } = require('chai')
 const { parse } = require('./util')
 
-describe('Parser / Steps', () => {
-  it('Parses "given" steps with ands and a but', () => {
+suite('Parser / Steps', () => {
+  test('Parses "given" steps with ands and a but', () => {
     const metadata = parse(`
 
       Feature : Lorem ipsum
@@ -40,7 +40,7 @@ describe('Parser / Steps', () => {
     )
   })
 
-  it('Parses "when" steps with ands and a but', () => {
+  test('Parses "when" steps with ands and a but', () => {
     const metadata = parse(`
 
       Feature : Lorem ipsum
@@ -78,7 +78,7 @@ describe('Parser / Steps', () => {
     )
   })
 
-  it('Parses "then" steps with ands and a but', () => {
+  test('Parses "then" steps with ands and a but', () => {
     const metadata = parse(`
 
       Feature : Lorem ipsum
