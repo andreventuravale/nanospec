@@ -44,13 +44,25 @@ function parse (input) {
 
   offset = ignoreEmptyLines(input, offset)
 
-  return scenario(input, offset)
+  const feature = parseFeature(input, offset)
+
+  if (feature[0]) {
+    return feature[1]
+  }
+
+  const scenario = parseScenario(input, offset)
+
+  if (scenario[0]) {
+    return scenario[1]
+  }
+
+  return undefined
 }
 
-function phrase (input, offset) {
+function parsePhrase (input, offset) {
   let start = offset
 
-  let end = word(input, start)
+  let end = parseWord(input, start)
 
   if (end) {
     let firstWordEnd = end
@@ -62,7 +74,7 @@ function phrase (input, offset) {
     while (end) {
       start = ignoreSpaces(input, end)
 
-      end = word(input, start)
+      end = parseWord(input, start)
 
       if (end) {
         right = end
@@ -75,7 +87,7 @@ function phrase (input, offset) {
   return [0, 0]
 }
 
-function scenario (input, offset) {
+function parseScenario (input, offset) {
   let start = offset
 
   let end = acceptLiteral(input, start, 'scenario:', 'SCENARIO:')
@@ -83,36 +95,79 @@ function scenario (input, offset) {
   if (end) {
     start = ignoreEmptyLines(input, end)
 
-    let [titleStart, titleEnd] = phrase(input, start)
+    let [titleStart, titleEnd] = parsePhrase(input, start)
 
     if (titleEnd > titleStart) {
       start = ignoreEmptyLines(input, titleEnd)
 
-      let [summaryStart, summaryEnd] = text(input, start)
+      let [summaryStart, summaryEnd] = parseText(input, start)
 
       if (summaryEnd > summaryStart) {
         start = ignoreEmptyLines(input, summaryEnd)
       }
 
-      let nodes = steps(input, start)
+      let nodes = parseSteps(input, start)
 
-      return {
-        type: 'statement',
-        statementType: 'scenario',
-        title: input.slice(titleStart, titleEnd),
-        summary: input.slice(summaryStart, summaryEnd),
-        nodes
-      }
+      return [
+        true,
+        {
+          type: 'statement',
+          statementType: 'scenario',
+          title: input.slice(titleStart, titleEnd),
+          summary: input.slice(summaryStart, summaryEnd),
+          nodes
+        }
+      ]
     }
   }
 
-  return {}
+  return [false]
 }
 
-function steps (input, offset) {
+function parseFeature (input, offset) {
+  let start = offset
+
+  let end = acceptLiteral(input, start, 'feature:', 'FEATURE:')
+
+  if (end) {
+    start = ignoreEmptyLines(input, end)
+
+    let [titleStart, titleEnd] = parsePhrase(input, start)
+
+    if (titleEnd > titleStart) {
+      start = ignoreEmptyLines(input, titleEnd)
+
+      let [summaryStart, summaryEnd] = parseText(input, start)
+
+      if (summaryEnd > summaryStart) {
+        start = ignoreEmptyLines(input, summaryEnd)
+      }
+
+      let nodes = parseStatements(input, start)
+
+      return [
+        true,
+        {
+          type: 'feature',
+          title: input.slice(titleStart, titleEnd),
+          summary: input.slice(summaryStart, summaryEnd),
+          nodes
+        }
+      ]
+    }
+  }
+
+  return [false]
+}
+
+function parseStatements (input, offset) {
+  return []
+}
+
+function parseSteps (input, offset) {
   let result = []
 
-  let range = phrase(input, offset)
+  let range = parsePhrase(input, offset)
 
   if (range[0] && range[1]) {
     let rangeText = input.slice(range[0], range[1])
@@ -132,7 +187,7 @@ function steps (input, offset) {
     do {
       offset = ignoreEmptyLines(input, range[1])
 
-      range = phrase(input, offset)
+      range = parsePhrase(input, offset)
 
       rangeText = input.slice(range[0], range[1])
 
@@ -153,8 +208,8 @@ function steps (input, offset) {
   return []
 }
 
-function text (input, offset) {
-  let range = phrase(input, offset)
+function parseText (input, offset) {
+  let range = parsePhrase(input, offset)
 
   if (range[0] && range[1]) {
     let rangeText = input.slice(range[0], range[1])
@@ -173,7 +228,7 @@ function text (input, offset) {
       do {
         offset = ignoreEmptyLines(input, end)
 
-        range = phrase(input, offset)
+        range = parsePhrase(input, offset)
 
         rangeText = input.slice(range[0], range[1])
 
@@ -189,7 +244,7 @@ function text (input, offset) {
   return [0, 0]
 }
 
-function word (input, offset) {
+function parseWord (input, offset) {
   let start = offset
 
   let end = ignore(input, start, /[^\s\r\n]/)
