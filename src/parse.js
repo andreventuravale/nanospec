@@ -129,7 +129,38 @@ function parseKeyword (keyword, result) {
   }
 }
 
-function parsePhrase (input, offset) {
+function parseManyLines (input, offset) {
+  let parseResult = parseSingleLine(input, offset)
+
+  if (parseResult[FOUND]) {
+    let firstWord = input.slice(parseResult[START], parseResult[RESULT])
+
+    if (/^(given|when|then|and|but)$/i.test(firstWord)) {
+      return [false]
+    }
+
+    let start = parseResult[START]
+    let end = parseResult[END]
+
+    do {
+      parseResult = parseSingleLine(input, ignoreEmptyLines(input, end))
+
+      if (parseResult[FOUND]) {
+        firstWord = input.slice(parseResult[START], parseResult[RESULT])
+
+        if (!/^(given|when|then|and|but)$/i.test(firstWord)) {
+          end = parseResult[END]
+        }
+      }
+    } while (parseResult[FOUND] && !/^(given|when|then|and|but)$/i.test(firstWord))
+
+    return [true, start, end]
+  }
+
+  return [false]
+}
+
+function parseSingleLine (input, offset) {
   let start = offset
   let end = parseWord(input, start)
 
@@ -156,7 +187,7 @@ function parsePhrase (input, offset) {
 function parseStep (input, offset) {
   const currentOffset = ignoreEmptyLines(input, offset)
 
-  const range = parsePhrase(input, currentOffset)
+  const range = parseSingleLine(input, currentOffset)
 
   if (range[FOUND]) {
     const fullText = input.slice(range[START], range[END])
@@ -196,7 +227,7 @@ function parseSteps (input, offset) {
 function parseSummary (input, offset) {
   const currentOffset = ignoreEmptyLines(input, offset)
 
-  const [found, start, end] = parseText(input, currentOffset)
+  const [found, start, end] = parseManyLines(input, currentOffset)
 
   if (found) {
     const summary = input.slice(start, end)
@@ -207,41 +238,10 @@ function parseSummary (input, offset) {
   return [false]
 }
 
-function parseText (input, offset) {
-  let parseResult = parsePhrase(input, offset)
-
-  if (parseResult[FOUND]) {
-    let firstWord = input.slice(parseResult[START], parseResult[RESULT])
-
-    if (/^(given|when|then|and|but)$/i.test(firstWord)) {
-      return [false]
-    }
-
-    let start = parseResult[START]
-    let end = parseResult[END]
-
-    do {
-      parseResult = parsePhrase(input, ignoreEmptyLines(input, end))
-
-      if (parseResult[FOUND]) {
-        firstWord = input.slice(parseResult[START], parseResult[RESULT])
-
-        if (!/^(given|when|then|and|but)$/i.test(firstWord)) {
-          end = parseResult[END]
-        }
-      }
-    } while (parseResult[FOUND] && !/^(given|when|then|and|but)$/i.test(firstWord))
-
-    return [true, start, end]
-  }
-
-  return [false]
-}
-
 function parseTitle (input, offset) {
   const currentOffset = ignoreEmptyLines(input, offset)
 
-  const [found, start, end] = parsePhrase(input, currentOffset)
+  const [found, start, end] = parseSingleLine(input, currentOffset)
 
   if (found) {
     const title = input.slice(start, end)
