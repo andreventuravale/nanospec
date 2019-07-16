@@ -98,6 +98,18 @@ function parseLine (input, offset) {
   return [false]
 }
 
+function parseKeyword (keyword, result) {
+  return (input, offset) => {
+    let start = offset
+
+    let end = acceptLiteral(input, start, keyword)
+
+    if (end) { return [true, start, end, result] }
+
+    return [false]
+  }
+}
+
 module.exports = {
   FOUND,
   START,
@@ -110,5 +122,6 @@ module.exports = {
   acceptLiteral,
   acceptNonSpace,
   ignoreEmptyLines,
+  parseKeyword,
   parseLine
 }

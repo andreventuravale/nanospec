@@ -1,6 +1,6 @@
 const {
   FOUND, START, END, RESULT,
-  acceptLiteral, compose, ignoreEmptyLines, optional, parseLine
+  compose, ignoreEmptyLines, optional, parseKeyword, parseLine
 } = require('./util')
 
 const parseBackgroundKeyword = parseKeyword(
@@ -40,9 +40,7 @@ const parseFeature = compose(
 )
 
 function parse (input) {
-  let offset = 0
-
-  offset = ignoreEmptyLines(input, offset)
+  const offset = ignoreEmptyLines(input, 0)
 
   const feature = parseFeature(input, offset)
 
@@ -57,20 +55,6 @@ function parse (input) {
   if (background[FOUND]) { return background[RESULT] }
 
   return undefined
-}
-
-function parseKeyword (keyword, result) {
-  return (input, offset) => {
-    let start = offset
-
-    let end = acceptLiteral(input, start, keyword)
-
-    if (end) {
-      return [true, start, end, result]
-    }
-
-    return [false]
-  }
 }
 
 function parseStep (input, offset) {
@@ -121,9 +105,7 @@ function parseSummary (input, offset) {
   if (parseResult[FOUND]) {
     let firstWord = input.slice(parseResult[START], parseResult[RESULT])
 
-    if (/^(given|when|then|and|but)$/i.test(firstWord)) {
-      return [false]
-    }
+    if (/^(given|when|then|and|but)$/i.test(firstWord)) { return [false] }
 
     let start = parseResult[START]
     let end = parseResult[END]
@@ -134,9 +116,7 @@ function parseSummary (input, offset) {
       if (parseResult[FOUND]) {
         firstWord = input.slice(parseResult[START], parseResult[RESULT])
 
-        if (!/^(given|when|then|and|but)$/i.test(firstWord)) {
-          end = parseResult[END]
-        }
+        if (!/^(given|when|then|and|but)$/i.test(firstWord)) { end = parseResult[END] }
       }
     } while (parseResult[FOUND] && !/^(given|when|then|and|but)$/i.test(firstWord))
 
