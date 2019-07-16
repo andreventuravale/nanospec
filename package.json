@@ -3,6 +3,7 @@
   "version": "1.0.1",
   "description": "A javascript parser for the Gherkin language.",
   "scripts": {
+    "lint": "standard --fix",
     "test": "mocha -ui tdd --recursive test",
     "test:watch": "mocha -ui tdd -watch --recursive test"
   },

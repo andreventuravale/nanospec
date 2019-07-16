@@ -19,9 +19,9 @@ module.exports = {
     preserveLocation,
     preserveParamLocation
   } = {
-      preserveLocation: false,
-      preserveParamLocation: true
-    }) {
+    preserveLocation: false,
+    preserveParamLocation: true
+  }) {
     if (!text) {
       return undefined
     }
