@@ -5,17 +5,25 @@ const {
 
 const parseBackgroundKeyword = parseKeyword(
   'background:BACKGROUND:',
-  { type: 'statement', statementType: 'background' }
+  {
+    type: 'statement',
+    statementType: 'background'
+  }
 )
 
 const parseScenarioKeyword = parseKeyword(
   'scenario:SCENARIO:',
-  { type: 'statement', statementType: 'scenario' }
+  {
+    type: 'statement',
+    statementType: 'scenario'
+  }
 )
 
 const parseFeatureKeyword = parseKeyword(
   'feature:FEATURE:',
-  { type: 'feature' }
+  {
+    type: 'feature'
+  }
 )
 
 const parseBackground = compose(
