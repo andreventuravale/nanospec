@@ -4,97 +4,41 @@ const START = 1
 const END = 2
 const RESULT = 3
 
-function _parseSummary () {
+const optional = (parse) => {
   return (input, offset) => {
-    let start = ignoreEmptyLines(input, offset)
+    const parseResult = parse(input, offset)
 
-    let [summaryStart, summaryEnd] = parseText(input, start)
-
-    if (summaryEnd > summaryStart) {
-      start = ignoreEmptyLines(input, summaryEnd)
-
-      return [
-        true,
-        summaryStart,
-        summaryEnd,
-        {
-          summary: input.slice(summaryStart, summaryEnd)
-        }
-      ]
+    if (parseResult[RESULT]) {
+      return parseResult
+    } else {
+      return [true, offset, offset, {}]
     }
-
-    return [false]
   }
 }
 
-function _parseTitle () {
+const compose = function (...chain) {
   return (input, offset) => {
-    let start = ignoreEmptyLines(input, offset)
+    let composedResult = {}
+    let currentOffset = offset
+    let firstParseResult = null
+    let i = 0
+    let lastParseResult = [true, 0, 0, {}]
 
-    let [titleStart, titleEnd] = parsePhrase(input, start)
-
-    if (titleEnd > titleStart) {
-      return [
-        true,
-        titleStart,
-        titleEnd,
-        {
-          title: input.slice(titleStart, titleEnd)
-        }
-      ]
-    }
-    return [false]
-  }
-}
-
-function _parseSteps () {
-  return (input, offset) => {
-    let start = ignoreEmptyLines(input, offset)
-
-    let nodes = parseSteps(input, start)
-
-    if (nodes[FOUND]) {
-      return [
-        true,
-        0, // TBD
-        0, // TBD
-        {
-          nodes: nodes[START]
-        }
-      ]
+    for (; lastParseResult[FOUND] && i < chain.length; i++) {
+      const parse = chain[i]
+      lastParseResult = parse(input, currentOffset)
+      Object.assign(composedResult, lastParseResult[RESULT])
+      currentOffset = lastParseResult[END]
+      firstParseResult = firstParseResult || lastParseResult
     }
 
-    return [false]
+    return [
+      i >= chain.length,
+      firstParseResult[START],
+      lastParseResult[END],
+      composedResult
+    ]
   }
-}
-
-function _parseKeyword (keyword, result) {
-  return (input, offset) => {
-    let start = offset
-
-    let end = acceptLiteral(input, start, keyword)
-
-    if (end) {
-      return [
-        true,
-        start,
-        end,
-        result
-      ]
-    }
-
-    return [false]
-  }
-}
-
-function accept (input, offset, regex) {
-  let i = offset
-
-  while (input[i] && regex.test(input[i])) {
-    i++
-  }
-
-  return i > offset ? i : 0
 }
 
 function acceptLiteral (input, offset, keyword) {
@@ -103,21 +47,42 @@ function acceptLiteral (input, offset, keyword) {
   let j = 0
   let k = keywordLength
 
-  while ((input[i] === keyword[j]) || (input[i] === keyword[k])) {
-    i++
-    j++
-    k++
-  }
+  while ((input[i] === keyword[j]) || (input[i] === keyword[k])) { i++; j++; k++ }
 
   return i === offset + keywordLength ? i : 0
 }
 
+const parseBackgroundKeyword = parseKeyword('background:BACKGROUND:', { type: 'statement', statementType: 'background' })
+
+const parseScenarioKeyword = parseKeyword('scenario:SCENARIO:', { type: 'statement', statementType: 'scenario' })
+
+const parseFeatureKeyword = parseKeyword('feature:FEATURE:', { type: 'feature' })
+
+const parseBackground = compose(
+  parseBackgroundKeyword,
+  parseTitle,
+  parseSteps
+)
+
+const parseScenario = compose(
+  parseScenarioKeyword,
+  parseTitle,
+  optional(
+    parseSummary
+  ),
+  parseSteps
+)
+
+const parseFeature = compose(
+  parseFeatureKeyword,
+  parseTitle,
+  parseSummary
+)
+
 function ignore (input, offset, regex) {
   let i = offset
 
-  while (input[i] && regex.test(input[i])) {
-    i++
-  }
+  while (input[i] && regex.test(input[i])) { i++ }
 
   return i
 }
@@ -137,124 +102,44 @@ function parse (input) {
 
   const feature = parseFeature(input, offset)
 
-  if (feature[FOUND]) {
-    return feature[RESULT]
-  }
+  if (feature[FOUND]) { return feature[RESULT] }
 
   const scenario = parseScenario(input, offset)
 
-  if (scenario[FOUND]) {
-    return scenario[RESULT]
-  }
+  if (scenario[FOUND]) { return scenario[RESULT] }
 
   const background = parseBackground(input, offset)
 
-  if (background[FOUND]) {
-    return background[RESULT]
-  }
+  if (background[FOUND]) { return background[RESULT] }
 
   return undefined
 }
 
-const parseFeature = (() => {
-  const _keyword = _parseKeyword('feature:FEATURE:', { type: 'feature' })
-  const _title = _parseTitle()
-  const _summary = _parseSummary()
-
+function parseKeyword (keyword, result) {
   return (input, offset) => {
-    const keyword = _keyword(input, offset)
-    const title = keyword[FOUND] && _title(input, keyword[END])
-    const summary = title[FOUND] && _summary(input, title[END])
+    let start = offset
 
-    if (keyword[FOUND] && title[FOUND]) {
-      return [
-        true,
-        keyword[START],
-        summary[END] || title[END],
-        {
-          ...keyword[RESULT],
-          ...title[RESULT],
-          ...summary[RESULT]
-        }
-      ]
-    } else {
-      return [false]
+    let end = acceptLiteral(input, start, keyword)
+
+    if (end) {
+      return [true, start, end, result]
     }
+
+    return [false]
   }
-})()
-
-const parseScenario = (() => {
-  const _keyword = _parseKeyword('scenario:SCENARIO:', { type: 'statement', statementType: 'scenario' })
-  const _title = _parseTitle()
-  const _summary = _parseSummary()
-  const _steps = _parseSteps()
-
-  return (input, offset) => {
-    const keyword = _keyword(input, offset)
-    const title = keyword[FOUND] && _title(input, keyword[END])
-    const summary = title[FOUND] && _summary(input, title[END])
-    const steps = title[FOUND] && _steps(input, summary[END] || title[END])
-
-    if (keyword[FOUND] && title[FOUND] && steps[FOUND]) {
-      return [
-        true,
-        keyword[START],
-        steps[END],
-        {
-          ...keyword[RESULT],
-          ...title[RESULT],
-          ...summary[RESULT],
-          ...steps[RESULT]
-        }
-      ]
-    } else {
-      return [false]
-    }
-  }
-})()
-
-const parseBackground = (() => {
-  const _keyword = _parseKeyword('background:BACKGROUND:', { type: 'statement', statementType: 'background' })
-  const _title = _parseTitle()
-  const _steps = _parseSteps()
-
-  return (input, offset) => {
-    const keyword = _keyword(input, offset)
-    const title = keyword[FOUND] && _title(input, keyword[END])
-    const steps = title[FOUND] && _steps(input, title[END])
-
-    if (keyword[FOUND] && title[FOUND] && steps[FOUND]) {
-      return [
-        true,
-        keyword[START],
-        steps[END],
-        {
-          ...keyword[RESULT],
-          ...title[RESULT],
-          ...steps[RESULT]
-        }
-      ]
-    } else {
-      return [false]
-    }
-  }
-})()
+}
 
 function parsePhrase (input, offset) {
   let start = offset
-
   let end = parseWord(input, start)
 
   if (end) {
     let firstWordEnd = end
-
     let left = start
-
     let right = end
 
     while (end) {
       start = ignoreSpaces(input, end)
-
       end = parseWord(input, start)
 
       if (end) {
@@ -262,99 +147,109 @@ function parsePhrase (input, offset) {
       }
     }
 
-    return [left, right, firstWordEnd]
+    return [true, left, right, firstWordEnd]
   }
 
-  return [0, 0]
+  return [false]
+}
+
+function parseStep (input, offset) {
+  const currentOffset = ignoreEmptyLines(input, offset)
+
+  const range = parsePhrase(input, currentOffset)
+
+  if (range[FOUND]) {
+    const fullText = input.slice(range[START], range[END])
+
+    if (/^(given|when|then|and|but)/i.test(fullText)) {
+      const type = 'step'
+
+      const stepType = input.slice(range[START], range[RESULT]).toLowerCase()
+
+      const text = input.slice(range[RESULT], range[END]).trim()
+
+      return [true, range[START], range[END], { type, stepType, text, fullText }]
+    }
+  }
+
+  return [false]
 }
 
 function parseSteps (input, offset) {
-  let result = []
+  const nodes = []
 
-  let range = parsePhrase(input, offset)
+  let parseResult = parseStep(input, offset)
 
-  if (range[FOUND] && range[START]) {
-    let fullText = input.slice(range[FOUND], range[START])
-
-    if (!/^(given|when|then|and|but)/i.test(fullText)) {
-      return [false]
-    }
-
-    let stepType = input.slice(range[FOUND], range[END]).toLowerCase()
-
-    let text = input.slice(range[END], range[START]).trim()
-
-    result.push({
-      type: 'step',
-      stepType,
-      text,
-      fullText
-    })
-
+  if (parseResult[FOUND]) {
     do {
-      offset = ignoreEmptyLines(input, range[START])
+      nodes.push(parseResult[RESULT])
 
-      range = parsePhrase(input, offset)
+      parseResult = parseStep(input, parseResult[END])
+    } while (parseResult[FOUND])
 
-      fullText = input.slice(range[FOUND], range[START])
+    return [true, nodes[0][START], nodes[nodes.length - 1][END], { nodes }]
+  }
 
-      if (range[FOUND] && range[START] && /^(given|when|then|and|but)/i.test(fullText)) {
-        stepType = input.slice(range[FOUND], range[END]).toLowerCase()
+  return [false]
+}
 
-        text = input.slice(range[END], range[START]).trim()
+function parseSummary (input, offset) {
+  const currentOffset = ignoreEmptyLines(input, offset)
 
-        result.push({
-          type: 'step',
-          stepType,
-          text,
-          fullText
-        })
-      }
-    } while (range[FOUND] && range[START] && /^(given|when|then|and|but)/i.test(fullText))
+  const [found, start, end] = parseText(input, currentOffset)
 
-    return [
-      true,
-      result
-    ]
+  if (found) {
+    const summary = input.slice(start, end)
+
+    return [true, start, end, { summary }]
   }
 
   return [false]
 }
 
 function parseText (input, offset) {
-  let range = parsePhrase(input, offset)
+  let parseResult = parsePhrase(input, offset)
 
-  if (range[FOUND] && range[START]) {
-    let rangeText = input.slice(range[FOUND], range[START])
+  if (parseResult[FOUND]) {
+    let firstWord = input.slice(parseResult[START], parseResult[RESULT])
 
-    if (/^(given|when|then|and|but)/i.test(rangeText)) {
-      return [0, 0]
+    if (/^(given|when|then|and|but)$/i.test(firstWord)) {
+      return [false]
     }
 
-    let start = range[FOUND]
+    let start = parseResult[START]
+    let end = parseResult[END]
 
-    let end = range[START]
+    do {
+      parseResult = parsePhrase(input, ignoreEmptyLines(input, end))
 
-    let newLine = accept(input, end, /[\n\r]+/)
+      if (parseResult[FOUND]) {
+        firstWord = input.slice(parseResult[START], parseResult[RESULT])
 
-    if (newLine) {
-      do {
-        offset = ignoreEmptyLines(input, end)
-
-        range = parsePhrase(input, offset)
-
-        rangeText = input.slice(range[FOUND], range[START])
-
-        if (range[FOUND] && range[START] && !/^(given|when|then|and|but)/i.test(rangeText)) {
-          end = range[START]
+        if (!/^(given|when|then|and|but)$/i.test(firstWord)) {
+          end = parseResult[END]
         }
-      } while (range[FOUND] && range[START] && !/^(given|when|then|and|but)/i.test(rangeText))
-    }
+      }
+    } while (parseResult[FOUND] && !/^(given|when|then|and|but)$/i.test(firstWord))
 
-    return [start, end]
+    return [true, start, end]
   }
 
-  return [0, 0]
+  return [false]
+}
+
+function parseTitle (input, offset) {
+  const currentOffset = ignoreEmptyLines(input, offset)
+
+  const [found, start, end] = parsePhrase(input, currentOffset)
+
+  if (found) {
+    const title = input.slice(start, end)
+
+    return [true, start, end, { title }]
+  }
+
+  return [false]
 }
 
 function parseWord (input, offset) {
