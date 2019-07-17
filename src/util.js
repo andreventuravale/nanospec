@@ -93,17 +93,17 @@ function parseLine (input, offset) {
 
   if (end) {
     let firstTokenEnd = end
-    let left = start
-    let right = end
+    let from = start
+    let to = end
 
     while (end) {
       start = ignoreSpaces(input, end)
       end = acceptNonSpace(input, start)
 
-      if (end) { right = end }
+      if (end) { to = end }
     }
 
-    return packet(true, left, right, firstTokenEnd)
+    return packet(true, from, to, firstTokenEnd)
   }
 
   return packet(false)
