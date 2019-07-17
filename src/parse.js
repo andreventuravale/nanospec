@@ -5,42 +5,106 @@ const {
   optional,
 
   ignoreEmptyLines,
+  ignoreSpace,
   packet,
-  parseKeyword,
-  parseLine
+  parseLine,
+  parseLiteral,
+  parseWord
 } = require('./util')
 
-const parseBackgroundKeyword = parseKeyword(
-  'background:BACKGROUND:',
+const parseColon = parseLiteral(':')
+
+const parseBackgroundWord = parseWord(
+  'background', 'BACKGROUND',
   {
     type: 'statement',
     statementType: 'background'
   }
 )
 
-const parseScenarioKeyword = parseKeyword(
-  'scenario:SCENARIO:',
+const parseScenarioWord = parseWord(
+  'scenario', 'SCENARIO',
   {
     type: 'statement',
     statementType: 'scenario'
   }
 )
 
-const parseFeatureKeyword = parseKeyword(
-  'feature:FEATURE:',
+const parseOutlineWord = parseWord(
+  'outline', 'OUTLINE',
+  {
+    modifier: 'outline'
+  }
+)
+
+const parseExampleWord = parseWord(
+  'example', 'EXAMPLE',
+  {
+    type: 'statement',
+    statementType: 'example'
+  }
+)
+
+const parseFeatureWord = parseWord(
+  'feature', 'FEATURE',
   {
     type: 'feature'
   }
 )
 
 const parseBackground = compose(
-  parseBackgroundKeyword,
+  parseBackgroundWord,
+  parseColon,
   parseTitle,
   parseSteps
 )
 
 const parseScenario = compose(
-  parseScenarioKeyword,
+  parseScenarioWord,
+  parseColon,
+  parseTitle,
+  optional(
+    parseSummary
+  ),
+  parseSteps
+)
+
+function parse (input) {
+  const offset = ignoreEmptyLines(input, 0)
+
+  const parseFeatureResult = parseFeature(input, offset)
+  if (parseFeatureResult[VALID]) { return parseFeatureResult[DATA] }
+
+  const parseScenarioResult = parseScenario(input, offset)
+  if (parseScenarioResult[VALID]) { return parseScenarioResult[DATA] }
+
+  const parseScenarioOutlineResult = parseScenarioOutline(input, offset)
+  if (parseScenarioOutlineResult[VALID]) { return parseScenarioOutlineResult[DATA] }
+
+  const parseExampleResult = parseExample(input, offset)
+  if (parseExampleResult[VALID]) { return parseExampleResult[DATA] }
+
+  const parseBackgroundResult = parseBackground(input, offset)
+  if (parseBackgroundResult[VALID]) { return parseBackgroundResult[DATA] }
+
+  return undefined
+}
+
+const parseScenarioOutline = compose(
+  parseScenarioWord,
+  parseSpace,
+  parseOutlineWord,
+  parseColon,
+  parseTitle,
+  optional(
+    parseSummary
+  ),
+  parseSteps
+)
+
+const parseExample = compose(
+  parseExampleWord,
+  parseColon,
   parseTitle,
   optional(
     parseSummary
@@ -49,27 +113,16 @@ const parseScenario = compose(
 )
 
 const parseFeature = compose(
-  parseFeatureKeyword,
+  parseFeatureWord,
+  parseColon,
   parseTitle,
   parseSummary
 )
 
-function parse (input) {
-  const offset = ignoreEmptyLines(input, 0)
+function parseSpace (input, offset) {
+  const nextOffset = ignoreSpace(input, offset)
 
-  const parseFeatureResult = parseFeature(input, offset)
-
-  if (parseFeatureResult[VALID]) { return parseFeatureResult[DATA] }
-
-  const parseScenarioResult = parseScenario(input, offset)
-
-  if (parseScenarioResult[VALID]) { return parseScenarioResult[DATA] }
-
-  const parseBackgroundResult = parseBackground(input, offset)
-
-  if (parseBackgroundResult[VALID]) { return parseBackgroundResult[DATA] }
-
-  return undefined
+  return packet(nextOffset > offset, offset, nextOffset)
 }
 
 function parseStep (input, offset) {

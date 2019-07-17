@@ -1,11 +1,11 @@
 const { expect } = require('chai')
 const { parse } = require('./util')
 
-suite.only('Parser / Background', () => {
+suite('Parser / Background', () => {
   test('Parses a background with some steps', () => {
     const metadata = parse(`
 
-      Background: In ipsum est id sit.
+      Background: In ipsum est id sit
 
         Given Voluptate consectetur irure pariatur laboris ex Lorem ipsum excepteur
         And Consectetur do anim velit sit nisi anim laboris officia culpa consequat ex ea
@@ -16,7 +16,7 @@ suite.only('Parser / Background', () => {
       {
         type: 'statement',
         statementType: 'background',
-        title: 'In ipsum est id sit.',
+        title: 'In ipsum est id sit',
         nodes: [
           {
             type: 'step',

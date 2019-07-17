@@ -1,9 +1,13 @@
 const { expect } = require('chai')
 const { parse } = require('./util')
 
-suite.only('Parser / Feature', () => {
+suite('Parser / Feature', () => {
   test('Parses a feature with only a title', () => {
-    const metadata = parse(`Feature: Esse laborum sunt ut consequat cupidatat ad cillum tempor in velit labore ullamco occaecat incididunt.`)
+    const metadata = parse(`
+
+      Feature: Esse laborum sunt ut consequat cupidatat ad cillum tempor in velit labore ullamco occaecat incididunt.
+
+    `)
 
     expect(metadata).to.deep.eql(
       {

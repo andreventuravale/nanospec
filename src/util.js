@@ -16,15 +16,16 @@ const optional = (parse) => {
   }
 }
 
-function acceptLiteral (input, offset, literal) {
-  let length = literal.length / 2
+function ignoreEmptyLines (input, offset) {
+  return ignoreRegex(input, offset, /\s+/)
+}
+
+function ignoreRegex (input, offset, regex) {
   let i = offset
-  let j = 0
-  let k = length
 
-  while ((input[i] === literal[j]) || (input[i] === literal[k])) { i++; j++; k++ }
+  while (input[i] && regex.test(input[i])) { i++ }
 
-  return i === offset + length ? i : 0
+  return i
 }
 
 const compose = function (...parseChain) {
@@ -47,24 +48,12 @@ const compose = function (...parseChain) {
   }
 }
 
-function acceptNonSpace (input, offset) {
+function ignoreSpace (input, offset) {
   const start = offset
 
-  const end = ignoreRegex(input, start, /[^\s\r\n]/)
+  const end = ignoreRegex(input, start, /[ \t]/)
 
   return end > start ? end : 0
-}
-
-function ignoreEmptyLines (input, offset) {
-  return ignoreRegex(input, offset, /\s+/)
-}
-
-function ignoreRegex (input, offset, regex) {
-  let i = offset
-
-  while (input[i] && regex.test(input[i])) { i++ }
-
-  return i
 }
 
 function ignoreSpaces (input, offset) {
@@ -75,21 +64,9 @@ function packet (valid, start, end, data) {
   return [valid, start, end, data]
 }
 
-function parseKeyword (literal, result) {
-  return (input, offset) => {
-    let start = offset
-
-    let end = acceptLiteral(input, start, literal)
-
-    if (end) { return packet(true, start, end, result) }
-
-    return packet(false)
-  }
-}
-
 function parseLine (input, offset) {
   let start = offset
-  let end = acceptNonSpace(input, start)
+  let end = recognizeNonSpace(input, start)
 
   if (end) {
     let firstTokenEnd = end
@@ -98,7 +75,7 @@ function parseLine (input, offset) {
 
     while (end) {
       start = ignoreSpaces(input, end)
-      end = acceptNonSpace(input, start)
+      end = recognizeNonSpace(input, start)
 
       if (end) { to = end }
     }
@@ -107,6 +84,56 @@ function parseLine (input, offset) {
   }
 
   return packet(false)
+}
+
+function parseLiteral (literal, result) {
+  return (input, offset) => {
+    let start = offset
+
+    let end = recognizeLiteral(input, start, literal)
+
+    if (end) { return packet(true, start, end, result) }
+
+    return packet(false)
+  }
+}
+
+function parseWord (lcase, ucase, result) {
+  return (input, offset) => {
+    let start = offset
+
+    let end = recognizeWord(input, start, lcase, ucase)
+
+    if (end) { return packet(true, start, end, result) }
+
+    return packet(false)
+  }
+}
+
+function recognizeLiteral (input, offset, literal) {
+  let i = offset
+  let j = 0
+
+  while (input[i] === literal[j]) { i++; j++ }
+
+  return j === literal.length ? i : 0
+}
+
+function recognizeNonSpace (input, offset) {
+  const start = offset
+
+  const end = ignoreRegex(input, start, /[^\s\r\n]/)
+
+  return end > start ? end : 0
+}
+
+function recognizeWord (input, offset, lcase, ucase) {
+  let i = offset
+  let j = 0
+
+  while ((input[i] === lcase[j]) || (input[i] === ucase[j])) { i++; j++ }
+
+  return j === lcase.length ? i : 0
 }
 
 module.exports = {
@@ -118,10 +145,12 @@ module.exports = {
   compose,
   optional,
 
-  acceptLiteral,
-  acceptNonSpace,
   ignoreEmptyLines,
+  ignoreSpace,
   packet,
-  parseKeyword,
-  parseLine
+  parseLine,
+  parseLiteral,
+  parseWord,
+  recognizeNonSpace,
+  recognizeWord
 }

@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { parse } = require('./util')
 
-suite.only('Parser / Scenario', () => {
+suite('Parser / Scenario', () => {
   test('Parses a basic scenario', () => {
     const metadata = parse(`
 

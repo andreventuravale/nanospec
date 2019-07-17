@@ -5,48 +5,44 @@ suite('Parser / Scenario Outline', () => {
   test('Parses a scenario outline with some steps', () => {
     const metadata = parse(`
 
-      Feature : Ut enim ad minima veniam
+      Scenario Outline: Magna ut irure id pariatur est esse in magna adipisicing est labore in quis
 
-      Scenario Outline: Ut enim ad minima veniam
-
-        Given Nemo enim ipsam voluptatem
-        When Sed quia non numquam eius
-        Then Ut enim ad minima veniam
-        And Architecto beatae vitae
+        Given Sit minim culpa laboris fugiat irure qui
+        When Do in incididunt pariatur sint ad occaecat pariatur
+        Then Non in laboris eiusmod veniam incididunt ullamco reprehenderit reprehenderit ad ut adipisicing deserunt
+        And Laborum sint fugiat ad sit exercitation
     `)
 
     expect(metadata).to.deep.eql(
       {
-        type: 'feature',
-        title: 'Ut enim ad minima veniam',
+        type: 'statement',
+        statementType: 'scenario',
+        modifier: 'outline',
+        title: 'Magna ut irure id pariatur est esse in magna adipisicing est labore in quis',
         nodes: [
           {
-            type: 'statement',
-            statementType: 'scenario',
-            modifier: 'outline',
-            title: 'Ut enim ad minima veniam',
-            nodes: [
-              {
-                type: 'step',
-                stepType: 'given',
-                text: 'Nemo enim ipsam voluptatem'
-              },
-              {
-                type: 'step',
-                stepType: 'when',
-                text: 'Sed quia non numquam eius'
-              },
-              {
-                type: 'step',
-                stepType: 'then',
-                text: 'Ut enim ad minima veniam'
-              },
-              {
-                type: 'step',
-                stepType: 'and',
-                text: 'Architecto beatae vitae'
-              }
-            ]
+            type: 'step',
+            stepType: 'given',
+            text: 'Sit minim culpa laboris fugiat irure qui',
+            fullText: 'Given Sit minim culpa laboris fugiat irure qui'
+          },
+          {
+            type: 'step',
+            stepType: 'when',
+            text: 'Do in incididunt pariatur sint ad occaecat pariatur',
+            fullText: 'When Do in incididunt pariatur sint ad occaecat pariatur'
+          },
+          {
+            type: 'step',
+            stepType: 'then',
+            text: 'Non in laboris eiusmod veniam incididunt ullamco reprehenderit reprehenderit ad ut adipisicing deserunt',
+            fullText: 'Then Non in laboris eiusmod veniam incididunt ullamco reprehenderit reprehenderit ad ut adipisicing deserunt'
+          },
+          {
+            type: 'step',
+            stepType: 'and',
+            text: 'Laborum sint fugiat ad sit exercitation',
+            fullText: 'And Laborum sint fugiat ad sit exercitation'
           }
         ]
       }

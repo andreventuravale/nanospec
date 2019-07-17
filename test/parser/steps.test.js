@@ -1,9 +1,10 @@
 const { expect } = require('chai')
 const { parse } = require('./util')
 
-suite.only('Parser / Steps', () => {
+suite('Parser / Steps', () => {
   test('Parses "given" steps with ands and a but', () => {
     const metadata = parse(`
+
       Scenario: Ex nisi eu aute ea reprehenderit proident et voluptate adipisicing nostrud et in id
 
         Given Tempor labore sit anim do anim
@@ -33,6 +34,7 @@ suite.only('Parser / Steps', () => {
 
   test('Parses "when" steps with ands and a but', () => {
     const metadata = parse(`
+
       Scenario: Nulla proident id deserunt aute pariatur esse id minim non pariatur laboris
 
         Given Minim exercitation sunt consequat cillum nostrud sit magna id
@@ -62,6 +64,7 @@ suite.only('Parser / Steps', () => {
 
   test('Parses "then" steps with ands and a but', () => {
     const metadata = parse(`
+
       Scenario: Ad Lorem cillum cupidatat deserunt nulla Lorem officia dolore dolore irure officia ex aliquip
 
         Given Cupidatat labore est ipsum nostrud
