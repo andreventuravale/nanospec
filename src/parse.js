@@ -1,6 +1,13 @@
 const {
-  FOUND, START, END, RESULT,
-  compose, ignoreEmptyLines, optional, parseKeyword, parseLine
+  VALID, START, END, DATA,
+
+  compose,
+  optional,
+
+  ignoreEmptyLines,
+  packet,
+  parseKeyword,
+  parseLine
 } = require('./util')
 
 const parseBackgroundKeyword = parseKeyword(
@@ -50,104 +57,113 @@ const parseFeature = compose(
 function parse (input) {
   const offset = ignoreEmptyLines(input, 0)
 
-  const feature = parseFeature(input, offset)
+  const parseFeatureResult = parseFeature(input, offset)
 
-  if (feature[FOUND]) { return feature[RESULT] }
+  if (parseFeatureResult[VALID]) { return parseFeatureResult[DATA] }
 
-  const scenario = parseScenario(input, offset)
+  const parseScenarioResult = parseScenario(input, offset)
 
-  if (scenario[FOUND]) { return scenario[RESULT] }
+  if (parseScenarioResult[VALID]) { return parseScenarioResult[DATA] }
 
-  const background = parseBackground(input, offset)
+  const parseBackgroundResult = parseBackground(input, offset)
 
-  if (background[FOUND]) { return background[RESULT] }
+  if (parseBackgroundResult[VALID]) { return parseBackgroundResult[DATA] }
 
   return undefined
 }
 
 function parseStep (input, offset) {
-  const currentOffset = ignoreEmptyLines(input, offset)
+  const start = ignoreEmptyLines(input, offset)
 
-  const range = parseLine(input, currentOffset)
+  const parseLineResult = parseLine(input, start)
 
-  if (range[FOUND]) {
-    const fullText = input.slice(range[START], range[END])
+  if (parseLineResult[VALID]) {
+    const firstToken = input.slice(parseLineResult[START], parseLineResult[DATA])
 
-    if (/^(given|when|then|and|but)/i.test(fullText)) {
+    if (/^(given|when|then|and|but)/i.test(firstToken)) {
       const type = 'step'
+      const stepType = input.slice(parseLineResult[START], parseLineResult[DATA]).toLowerCase()
+      const text = input.slice(parseLineResult[DATA], parseLineResult[END]).trim()
+      const fullText = input.slice(parseLineResult[START], parseLineResult[END])
 
-      const stepType = input.slice(range[START], range[RESULT]).toLowerCase()
-
-      const text = input.slice(range[RESULT], range[END]).trim()
-
-      return [true, range[START], range[END], { type, stepType, text, fullText }]
+      return packet(
+        true,
+        parseLineResult[START],
+        parseLineResult[END],
+        { type, stepType, text, fullText }
+      )
     }
   }
 
-  return [false]
+  return packet(false)
 }
 
 function parseSteps (input, offset) {
   const nodes = []
 
-  let parseResult = parseStep(input, offset)
+  let parseStepResult = parseStep(input, offset)
 
-  if (parseResult[FOUND]) {
+  if (parseStepResult[VALID]) {
+    let first = parseStepResult[DATA]
+    let last = first
+
     do {
-      nodes.push(parseResult[RESULT])
+      last = parseStepResult[DATA]
 
-      parseResult = parseStep(input, parseResult[END])
-    } while (parseResult[FOUND])
+      nodes.push(parseStepResult[DATA])
 
-    return [true, nodes[0][START], nodes[nodes.length - 1][END], { nodes }]
+      parseStepResult = parseStep(input, parseStepResult[END])
+    } while (parseStepResult[VALID])
+
+    return packet(true, first[START], last[END], { nodes })
   }
 
-  return [false]
+  return packet(false)
 }
 
 function parseSummary (input, offset) {
-  const currentOffset = ignoreEmptyLines(input, offset)
+  let start = ignoreEmptyLines(input, offset)
+  let end = start
+  let parseLineResult = parseLine(input, start)
 
-  let parseResult = parseLine(input, currentOffset)
+  if (parseLineResult[VALID]) {
+    let firstToken = input.slice(parseLineResult[START], parseLineResult[DATA])
 
-  if (parseResult[FOUND]) {
-    let firstWord = input.slice(parseResult[START], parseResult[RESULT])
+    if (/^(given|when|then|and|but)$/i.test(firstToken)) { return packet(false) }
 
-    if (/^(given|when|then|and|but)$/i.test(firstWord)) { return [false] }
-
-    let start = parseResult[START]
-    let end = parseResult[END]
+    start = parseLineResult[START]
+    end = parseLineResult[END]
 
     do {
-      parseResult = parseLine(input, ignoreEmptyLines(input, end))
+      parseLineResult = parseLine(input, ignoreEmptyLines(input, end))
 
-      if (parseResult[FOUND]) {
-        firstWord = input.slice(parseResult[START], parseResult[RESULT])
+      if (parseLineResult[VALID]) {
+        firstToken = input.slice(parseLineResult[START], parseLineResult[DATA])
 
-        if (!/^(given|when|then|and|but)$/i.test(firstWord)) { end = parseResult[END] }
+        if (!/^(given|when|then|and|but)$/i.test(firstToken)) { end = parseLineResult[END] }
       }
-    } while (parseResult[FOUND] && !/^(given|when|then|and|but)$/i.test(firstWord))
+    } while (parseLineResult[VALID] && !/^(given|when|then|and|but)$/i.test(firstToken))
 
     const summary = input.slice(start, end)
 
-    return [true, start, end, { summary }]
+    return packet(true, start, end, { summary })
   }
 
-  return [false]
+  return packet(false)
 }
 
 function parseTitle (input, offset) {
-  const currentOffset = ignoreEmptyLines(input, offset)
+  const start = ignoreEmptyLines(input, offset)
 
-  const [found, start, end] = parseLine(input, currentOffset)
+  const parseLineResult = parseLine(input, start)
 
-  if (found) {
-    const title = input.slice(start, end)
+  if (parseLineResult[VALID]) {
+    const title = input.slice(parseLineResult[START], parseLineResult[END])
 
-    return [true, start, end, { title }]
+    return packet(true, parseLineResult[START], parseLineResult[END], { title })
   }
 
-  return [false]
+  return packet(false)
 }
 
 module.exports = {

@@ -1,66 +1,63 @@
 
-const FOUND = 0
+const VALID = 0
 const START = 1
 const END = 2
-const RESULT = 3
+const DATA = 3
 
 const optional = (parse) => {
   return (input, offset) => {
     const parseResult = parse(input, offset)
 
-    if (parseResult[RESULT]) {
+    if (parseResult[VALID]) {
       return parseResult
     } else {
-      return [true, offset, offset, {}]
+      return packet(true, offset, offset, {})
     }
   }
 }
 
-function acceptLiteral (input, offset, keyword) {
+function acceptLiteral (input, offset, literal) {
+  let length = literal.length / 2
   let i = offset
-  let keywordLength = keyword.length / 2
   let j = 0
-  let k = keywordLength
+  let k = length
 
-  while ((input[i] === keyword[j]) || (input[i] === keyword[k])) { i++; j++; k++ }
+  while ((input[i] === literal[j]) || (input[i] === literal[k])) { i++; j++; k++ }
 
-  return i === offset + keywordLength ? i : 0
+  return i === offset + length ? i : 0
 }
 
-const compose = function (...chain) {
+const compose = function (...parseChain) {
   return (input, offset) => {
-    let composedResult = {}
-    let currentOffset = offset
-    let firstParseResult = null
     let i = 0
-    let lastParseResult = [true, 0, 0, {}]
+    let data = {}
+    let first = null
+    let last = packet(true, offset, offset)
 
-    for (; lastParseResult[FOUND] && i < chain.length; i++) {
-      const parse = chain[i]
-      lastParseResult = parse(input, currentOffset)
-      Object.assign(composedResult, lastParseResult[RESULT])
-      currentOffset = lastParseResult[END]
-      firstParseResult = firstParseResult || lastParseResult
+    for (; last[VALID] && i < parseChain.length; i++) {
+      const parse = parseChain[i]
+      last = parse(input, last[END])
+      first = first || last
+      Object.assign(data, last[DATA])
     }
 
-    return [
-      i >= chain.length,
-      firstParseResult[START],
-      lastParseResult[END],
-      composedResult
-    ]
+    return packet(i >= parseChain.length, first[START], last[END], data)
   }
 }
 
 function acceptNonSpace (input, offset) {
-  let start = offset
+  const start = offset
 
-  let end = ignore(input, start, /[^\s\r\n]/)
+  const end = ignoreRegex(input, start, /[^\s\r\n]/)
 
   return end > start ? end : 0
 }
 
-function ignore (input, offset, regex) {
+function ignoreEmptyLines (input, offset) {
+  return ignoreRegex(input, offset, /\s+/)
+}
+
+function ignoreRegex (input, offset, regex) {
   let i = offset
 
   while (input[i] && regex.test(input[i])) { i++ }
@@ -68,12 +65,24 @@ function ignore (input, offset, regex) {
   return i
 }
 
-function ignoreEmptyLines (input, offset) {
-  return ignore(input, offset, /\s+/)
+function ignoreSpaces (input, offset) {
+  return ignoreRegex(input, offset, /[ \t]/)
 }
 
-function ignoreSpaces (input, offset) {
-  return ignore(input, offset, /[ \t]/)
+function packet (valid, start, end, data) {
+  return [valid, start, end, data]
+}
+
+function parseKeyword (literal, result) {
+  return (input, offset) => {
+    let start = offset
+
+    let end = acceptLiteral(input, start, literal)
+
+    if (end) { return packet(true, start, end, result) }
+
+    return packet(false)
+  }
 }
 
 function parseLine (input, offset) {
@@ -81,7 +90,7 @@ function parseLine (input, offset) {
   let end = acceptNonSpace(input, start)
 
   if (end) {
-    let firstWordEnd = end
+    let firstTokenEnd = end
     let left = start
     let right = end
 
@@ -92,29 +101,17 @@ function parseLine (input, offset) {
       if (end) { right = end }
     }
 
-    return [true, left, right, firstWordEnd]
+    return packet(true, left, right, firstTokenEnd)
   }
 
-  return [false]
-}
-
-function parseKeyword (keyword, result) {
-  return (input, offset) => {
-    let start = offset
-
-    let end = acceptLiteral(input, start, keyword)
-
-    if (end) { return [true, start, end, result] }
-
-    return [false]
-  }
+  return packet(false)
 }
 
 module.exports = {
-  FOUND,
+  VALID,
   START,
   END,
-  RESULT,
+  DATA,
 
   compose,
   optional,
@@ -122,6 +119,7 @@ module.exports = {
   acceptLiteral,
   acceptNonSpace,
   ignoreEmptyLines,
+  packet,
   parseKeyword,
   parseLine
 }
