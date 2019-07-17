@@ -41,7 +41,9 @@ const compose = function (...parseChain) {
       Object.assign(data, last[DATA])
     }
 
-    return packet(i >= parseChain.length, first[START], last[END], data)
+    const parsedAll = i >= parseChain.length
+
+    return packet(parsedAll, first[START], last[END], data)
   }
 }
 
