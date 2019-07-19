@@ -1,11 +1,11 @@
 const { expect } = require('chai')
-const { parse } = require('./util')
+const { parse } = require('../util')
 
 suite('Parser / Scenario Outline', () => {
   test('Parses a scenario outline with some steps', () => {
     const metadata = parse(`
 
-      Scenario Outline: Magna ut irure id pariatur est esse in magna adipisicing est labore in quis
+      Scenario Outline : Magna ut irure id pariatur est esse in magna adipisicing est labore in quis
 
         Given Sit minim culpa laboris fugiat irure qui
         When Do in incididunt pariatur sint ad occaecat pariatur
@@ -15,31 +15,31 @@ suite('Parser / Scenario Outline', () => {
 
     expect(metadata).to.deep.eql({
       type: 'statement',
-      statementType: 'scenario',
+      subtype: 'scenario',
       modifier: 'outline',
       title: 'Magna ut irure id pariatur est esse in magna adipisicing est labore in quis',
       nodes: [
         {
           type: 'step',
-          stepType: 'given',
+          subtype: 'given',
           text: 'Sit minim culpa laboris fugiat irure qui',
           fullText: 'Given Sit minim culpa laboris fugiat irure qui'
         },
         {
           type: 'step',
-          stepType: 'when',
+          subtype: 'when',
           text: 'Do in incididunt pariatur sint ad occaecat pariatur',
           fullText: 'When Do in incididunt pariatur sint ad occaecat pariatur'
         },
         {
           type: 'step',
-          stepType: 'then',
+          subtype: 'then',
           text: 'Non in laboris eiusmod veniam incididunt ullamco reprehenderit reprehenderit ad ut adipisicing deserunt',
           fullText: 'Then Non in laboris eiusmod veniam incididunt ullamco reprehenderit reprehenderit ad ut adipisicing deserunt'
         },
         {
           type: 'step',
-          stepType: 'and',
+          subtype: 'and',
           text: 'Laborum sint fugiat ad sit exercitation',
           fullText: 'And Laborum sint fugiat ad sit exercitation'
         }

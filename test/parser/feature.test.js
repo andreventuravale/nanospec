@@ -5,7 +5,7 @@ suite('Parser / Feature', () => {
   test('Parses a feature with only a title', () => {
     const metadata = parse(`
 
-      Feature: Esse laborum sunt ut consequat cupidatat ad cillum tempor in velit labore ullamco occaecat incididunt.
+      Feature : Esse laborum sunt ut consequat cupidatat ad cillum tempor in velit labore ullamco occaecat incididunt.
 
     `)
 
@@ -18,7 +18,7 @@ suite('Parser / Feature', () => {
   test('Parses a feature with a summary', () => {
     const metadata = parse(`
 
-      Feature: Est aute non in aute elit pariatur cillum enim ex aliqua aute exercitation.
+      Feature : Est aute non in aute elit pariatur cillum enim ex aliqua aute exercitation.
 
         Culpa tempor eiusmod eu commodo incididunt.
         Occaecat tempor ex laborum incididunt.

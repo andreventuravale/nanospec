@@ -1,5 +1,5 @@
 const { expect } = require('chai')
-const { parse } = require('./util')
+const { parse } = require('../util')
 
 suite.skip('Parser / Parameters', () => {
   test('Parses many parameters having same name', () => {
@@ -7,7 +7,7 @@ suite.skip('Parser / Parameters', () => {
 
       Feature : Ut enim ad minima veniam
 
-      Scenario Outline: Ut enim ad minima veniam
+      Scenario Outline : Ut enim ad minima veniam
 
         Given Nemo enim <ipsam> voluptatem
         When Sed quia <non> <non> <non> numquam eius
@@ -21,49 +21,39 @@ suite.skip('Parser / Parameters', () => {
       nodes: [
         {
           type: 'statement',
-          statementType: 'scenario',
+          subtype: 'scenario',
           modifier: 'outline',
           title: 'Ut enim ad minima veniam',
           nodes: [
             {
               type: 'step',
-              stepType: 'given',
+              subtype: 'given',
               text: 'Nemo enim <ipsam> voluptatem',
               nodes: [
-                {
-                  type: 'parameter',
-                  name: 'ipsam',
-                  at: [11]
-                }
+                { type: 'parameter', name: 'ipsam' }
               ]
             },
             {
               type: 'step',
-              stepType: 'when',
+              subtype: 'when',
               text: 'Sed quia <non> <non> <non> numquam eius',
               nodes: [
-                {
-                  type: 'parameter',
-                  name: 'non',
-                  at: [10, 16, 22]
-                }
+                { type: 'parameter', name: 'non' },
+                { type: 'parameter', name: 'non' },
+                { type: 'parameter', name: 'non' }
               ]
             },
             {
               type: 'step',
-              stepType: 'then',
+              subtype: 'then',
               text: 'Ut enim ad <minima> veniam',
               nodes: [
-                {
-                  type: 'parameter',
-                  name: 'minima',
-                  at: [12]
-                }
+                { type: 'parameter', name: 'minima' }
               ]
             },
             {
               type: 'step',
-              stepType: 'and',
+              subtype: 'and',
               text: 'Architecto beatae vitae'
             }
           ]

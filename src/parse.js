@@ -18,7 +18,7 @@ const parseBackgroundWord = parseWord(
   'background', 'BACKGROUND',
   {
     type: 'statement',
-    statementType: 'background'
+    subtype: 'background'
   }
 )
 
@@ -26,7 +26,7 @@ const parseScenarioWord = parseWord(
   'scenario', 'SCENARIO',
   {
     type: 'statement',
-    statementType: 'scenario'
+    subtype: 'scenario'
   }
 )
 
@@ -41,7 +41,7 @@ const parseExampleWord = parseWord(
   'example', 'EXAMPLE',
   {
     type: 'statement',
-    statementType: 'example'
+    subtype: 'example'
   }
 )
 
@@ -132,7 +132,7 @@ function parseStep (input, offset) {
 
     if (/^(given|when|then|and|but)/i.test(firstToken)) {
       const type = 'step'
-      const stepType = input.slice(parseLineResult[START], parseLineResult[DATA]).toLowerCase()
+      const subtype = input.slice(parseLineResult[START], parseLineResult[DATA]).toLowerCase()
       const text = input.slice(parseLineResult[DATA], parseLineResult[END]).trim()
       const fullText = input.slice(parseLineResult[START], parseLineResult[END])
 
@@ -141,7 +141,7 @@ function parseStep (input, offset) {
         parseLineResult[START],
         parseLineResult[END],
         {
-          type, stepType, text, fullText
+          type, subtype, text, fullText
         }
       )
     }

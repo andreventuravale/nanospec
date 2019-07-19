@@ -5,7 +5,7 @@ suite('Parser / Scenario', () => {
   test('Parses a basic scenario', () => {
     const metadata = parse(`
 
-      Scenario: Quis autem vel eum
+      Scenario : Quis autem vel eum
 
         Given taque earum rerum
         When minus id quod maxime
@@ -14,18 +14,12 @@ suite('Parser / Scenario', () => {
 
     expect(metadata).to.deep.eql({
       type: 'statement',
-      statementType: 'scenario',
+      subtype: 'scenario',
       title: 'Quis autem vel eum',
       nodes: [
-        {
-          type: 'step', stepType: 'given', text: 'taque earum rerum', fullText: 'Given taque earum rerum'
-        },
-        {
-          type: 'step', stepType: 'when', text: 'minus id quod maxime', fullText: 'When minus id quod maxime'
-        },
-        {
-          type: 'step', stepType: 'then', text: 'et expedita distinctio', fullText: 'Then et expedita distinctio'
-        }
+        { type: 'step', subtype: 'given', text: 'taque earum rerum', fullText: 'Given taque earum rerum' },
+        { type: 'step', subtype: 'when', text: 'minus id quod maxime', fullText: 'When minus id quod maxime' },
+        { type: 'step', subtype: 'then', text: 'et expedita distinctio', fullText: 'Then et expedita distinctio' }
       ]
     })
   })
@@ -33,7 +27,7 @@ suite('Parser / Scenario', () => {
   test('Parses a scenario with a summary', () => {
     const metadata = parse(`
 
-      Scenario: Quis autem vel eum
+      Scenario : Quis autem vel eum
 
         Qui occaecat excepteur sit minim dolor
         ipsum pariatur cupidatat officia aute nisi.
@@ -45,22 +39,16 @@ suite('Parser / Scenario', () => {
 
     expect(metadata).to.deep.eql({
       type: 'statement',
-      statementType: 'scenario',
+      subtype: 'scenario',
       title: 'Quis autem vel eum',
       summary: [
         { type: 'text', text: 'Qui occaecat excepteur sit minim dolor' },
         { type: 'text', text: 'ipsum pariatur cupidatat officia aute nisi.' }
       ],
       nodes: [
-        {
-          type: 'step', stepType: 'given', text: 'taque earum rerum', fullText: 'Given taque earum rerum'
-        },
-        {
-          type: 'step', stepType: 'when', text: 'minus id quod maxime', fullText: 'When minus id quod maxime'
-        },
-        {
-          type: 'step', stepType: 'then', text: 'et expedita distinctio', fullText: 'Then et expedita distinctio'
-        }
+        { type: 'step', subtype: 'given', text: 'taque earum rerum', fullText: 'Given taque earum rerum' },
+        { type: 'step', subtype: 'when', text: 'minus id quod maxime', fullText: 'When minus id quod maxime' },
+        { type: 'step', subtype: 'then', text: 'et expedita distinctio', fullText: 'Then et expedita distinctio' }
       ]
     })
   })

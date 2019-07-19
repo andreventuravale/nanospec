@@ -82,7 +82,6 @@ function compose (setup) {
     for (; last[VALID] && i < parseChain.length; i++) {
       const parse = parseChain[i]
       last = parse(input, last[END])
-      // inspect(last)
       first = first || last
       Object.assign(data, last[DATA])
     }
