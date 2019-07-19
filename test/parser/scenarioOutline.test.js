@@ -13,39 +13,37 @@ suite('Parser / Scenario Outline', () => {
         And Laborum sint fugiat ad sit exercitation
     `)
 
-    expect(metadata).to.deep.eql(
-      {
-        type: 'statement',
-        statementType: 'scenario',
-        modifier: 'outline',
-        title: 'Magna ut irure id pariatur est esse in magna adipisicing est labore in quis',
-        nodes: [
-          {
-            type: 'step',
-            stepType: 'given',
-            text: 'Sit minim culpa laboris fugiat irure qui',
-            fullText: 'Given Sit minim culpa laboris fugiat irure qui'
-          },
-          {
-            type: 'step',
-            stepType: 'when',
-            text: 'Do in incididunt pariatur sint ad occaecat pariatur',
-            fullText: 'When Do in incididunt pariatur sint ad occaecat pariatur'
-          },
-          {
-            type: 'step',
-            stepType: 'then',
-            text: 'Non in laboris eiusmod veniam incididunt ullamco reprehenderit reprehenderit ad ut adipisicing deserunt',
-            fullText: 'Then Non in laboris eiusmod veniam incididunt ullamco reprehenderit reprehenderit ad ut adipisicing deserunt'
-          },
-          {
-            type: 'step',
-            stepType: 'and',
-            text: 'Laborum sint fugiat ad sit exercitation',
-            fullText: 'And Laborum sint fugiat ad sit exercitation'
-          }
-        ]
-      }
-    )
+    expect(metadata).to.deep.eql({
+      type: 'statement',
+      statementType: 'scenario',
+      modifier: 'outline',
+      title: 'Magna ut irure id pariatur est esse in magna adipisicing est labore in quis',
+      nodes: [
+        {
+          type: 'step',
+          stepType: 'given',
+          text: 'Sit minim culpa laboris fugiat irure qui',
+          fullText: 'Given Sit minim culpa laboris fugiat irure qui'
+        },
+        {
+          type: 'step',
+          stepType: 'when',
+          text: 'Do in incididunt pariatur sint ad occaecat pariatur',
+          fullText: 'When Do in incididunt pariatur sint ad occaecat pariatur'
+        },
+        {
+          type: 'step',
+          stepType: 'then',
+          text: 'Non in laboris eiusmod veniam incididunt ullamco reprehenderit reprehenderit ad ut adipisicing deserunt',
+          fullText: 'Then Non in laboris eiusmod veniam incididunt ullamco reprehenderit reprehenderit ad ut adipisicing deserunt'
+        },
+        {
+          type: 'step',
+          stepType: 'and',
+          text: 'Laborum sint fugiat ad sit exercitation',
+          fullText: 'And Laborum sint fugiat ad sit exercitation'
+        }
+      ]
+    })
   })
 })

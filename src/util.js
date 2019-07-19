@@ -4,40 +4,85 @@ const START = 1
 const END = 2
 const DATA = 3
 
-const optional = (parse) => {
+function ignoreComment (input, offset) {
+  const i = recognizeLiteral(input, offset, '#')
+
+  if (i > offset) {
+    return ignoreLine(input, i)
+  }
+
+  return offset
+}
+
+function ignoreEmptyLines (input, offset) {
+  const i = ignoreRegex(input, offset, /\s+/)
+
+  const j = ignoreComment(input, i)
+
+  return ignoreRegex(input, j, /\s+/)
+}
+
+function ignoreLine (input, offset) {
+  const i = ignoreRegex(input, offset, /[^\r\n]/)
+
+  const j = ignoreRegex(input, i, /[\r\n]/)
+
+  return j
+}
+
+function ignoreEmptyLinesBefore (parse) {
+  return (input, offset) => {
+    const i = ignoreEmptyLines(input, offset)
+
+    return parse(input, i)
+  }
+}
+
+function passthrough (parse) {
+  return (input, offset) => parse(input, offset)
+}
+
+function optional (parse) {
   return (input, offset) => {
     const parseResult = parse(input, offset)
 
     if (parseResult[VALID]) {
       return parseResult
-    } else {
-      return packet(true, offset, offset, {})
     }
+    return packet(true, offset, offset, {})
   }
 }
 
-function ignoreEmptyLines (input, offset) {
-  return ignoreRegex(input, offset, /\s+/)
+function standard (parse) {
+  return ignoreEmptyLinesBefore(parse)
 }
 
-function ignoreRegex (input, offset, regex) {
-  let i = offset
+function compose (setup) {
+  const parseChain = []
 
-  while (input[i] && regex.test(input[i])) { i++ }
+  const emit =
+    (parse) => {
+      parseChain.push(parse)
+    }
 
-  return i
-}
+  setup({
+    emit,
+    ignoreEmptyLinesBefore,
+    optional,
+    passthrough,
+    standard
+  })
 
-const compose = function (...parseChain) {
   return (input, offset) => {
     let i = 0
-    let data = {}
+    const data = {}
     let first = null
     let last = packet(true, offset, offset)
 
     for (; last[VALID] && i < parseChain.length; i++) {
       const parse = parseChain[i]
       last = parse(input, last[END])
+      // inspect(last)
       first = first || last
       Object.assign(data, last[DATA])
     }
@@ -48,12 +93,12 @@ const compose = function (...parseChain) {
   }
 }
 
-function ignoreSpace (input, offset) {
-  const start = offset
+function ignoreRegex (input, offset, regex) {
+  let i = offset
 
-  const end = ignoreRegex(input, start, /[ \t]/)
+  while (input[i] && regex.test(input[i])) { i++ }
 
-  return end > start ? end : 0
+  return i
 }
 
 function ignoreSpaces (input, offset) {
@@ -65,12 +110,12 @@ function packet (valid, start, end, data) {
 }
 
 function parseLine (input, offset) {
-  let start = offset
+  let start = ignoreEmptyLines(input, offset)
   let end = recognizeNonSpace(input, start)
 
   if (end) {
-    let firstTokenEnd = end
-    let from = start
+    const firstTokenEnd = end
+    const from = start
     let to = end
 
     while (end) {
@@ -88,9 +133,9 @@ function parseLine (input, offset) {
 
 function parseLiteral (literal, result) {
   return (input, offset) => {
-    let start = offset
+    const start = offset
 
-    let end = recognizeLiteral(input, start, literal)
+    const end = recognizeLiteral(input, start, literal)
 
     if (end) { return packet(true, start, end, result) }
 
@@ -100,11 +145,13 @@ function parseLiteral (literal, result) {
 
 function parseWord (lcase, ucase, result) {
   return (input, offset) => {
-    let start = offset
+    const start = offset
 
-    let end = recognizeWord(input, start, lcase, ucase)
+    const end = recognizeWord(input, start, lcase, ucase)
 
-    if (end) { return packet(true, start, end, result) }
+    if (end) {
+      return packet(true, start, end, result)
+    }
 
     return packet(false)
   }
@@ -122,7 +169,15 @@ function recognizeLiteral (input, offset, literal) {
 function recognizeNonSpace (input, offset) {
   const start = offset
 
-  const end = ignoreRegex(input, start, /[^\s\r\n]/)
+  const end = ignoreRegex(input, start, /[^\s]/)
+
+  return end > start ? end : 0
+}
+
+function recognizeSpace (input, offset) {
+  const start = offset
+
+  const end = ignoreRegex(input, start, /[ \t]/)
 
   return end > start ? end : 0
 }
@@ -143,14 +198,14 @@ module.exports = {
   DATA,
 
   compose,
-  optional,
 
+  ignoreComment,
   ignoreEmptyLines,
-  ignoreSpace,
   packet,
   parseLine,
   parseLiteral,
   parseWord,
   recognizeNonSpace,
+  recognizeSpace,
   recognizeWord
 }

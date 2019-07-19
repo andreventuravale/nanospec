@@ -12,18 +12,22 @@ suite('Parser / Scenario', () => {
         Then et expedita distinctio
     `)
 
-    expect(metadata).to.deep.eql(
-      {
-        type: 'statement',
-        statementType: 'scenario',
-        title: 'Quis autem vel eum',
-        nodes: [
-          { type: 'step', stepType: 'given', text: 'taque earum rerum', fullText: 'Given taque earum rerum' },
-          { type: 'step', stepType: 'when', text: 'minus id quod maxime', fullText: 'When minus id quod maxime' },
-          { type: 'step', stepType: 'then', text: 'et expedita distinctio', fullText: 'Then et expedita distinctio' }
-        ]
-      }
-    )
+    expect(metadata).to.deep.eql({
+      type: 'statement',
+      statementType: 'scenario',
+      title: 'Quis autem vel eum',
+      nodes: [
+        {
+          type: 'step', stepType: 'given', text: 'taque earum rerum', fullText: 'Given taque earum rerum'
+        },
+        {
+          type: 'step', stepType: 'when', text: 'minus id quod maxime', fullText: 'When minus id quod maxime'
+        },
+        {
+          type: 'step', stepType: 'then', text: 'et expedita distinctio', fullText: 'Then et expedita distinctio'
+        }
+      ]
+    })
   })
 
   test('Parses a scenario with a summary', () => {
@@ -39,19 +43,25 @@ suite('Parser / Scenario', () => {
         Then et expedita distinctio
     `)
 
-    expect(metadata).to.deep.eql(
-      {
-        type: 'statement',
-        statementType: 'scenario',
-        title: 'Quis autem vel eum',
-        summary: `Qui occaecat excepteur sit minim dolor
-        ipsum pariatur cupidatat officia aute nisi.`,
-        nodes: [
-          { type: 'step', stepType: 'given', text: 'taque earum rerum', fullText: 'Given taque earum rerum' },
-          { type: 'step', stepType: 'when', text: 'minus id quod maxime', fullText: 'When minus id quod maxime' },
-          { type: 'step', stepType: 'then', text: 'et expedita distinctio', fullText: 'Then et expedita distinctio' }
-        ]
-      }
-    )
+    expect(metadata).to.deep.eql({
+      type: 'statement',
+      statementType: 'scenario',
+      title: 'Quis autem vel eum',
+      summary: [
+        { type: 'text', text: 'Qui occaecat excepteur sit minim dolor' },
+        { type: 'text', text: 'ipsum pariatur cupidatat officia aute nisi.' }
+      ],
+      nodes: [
+        {
+          type: 'step', stepType: 'given', text: 'taque earum rerum', fullText: 'Given taque earum rerum'
+        },
+        {
+          type: 'step', stepType: 'when', text: 'minus id quod maxime', fullText: 'When minus id quod maxime'
+        },
+        {
+          type: 'step', stepType: 'then', text: 'et expedita distinctio', fullText: 'Then et expedita distinctio'
+        }
+      ]
+    })
   })
 })

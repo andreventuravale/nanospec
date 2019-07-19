@@ -2,14 +2,14 @@ const {
   VALID, START, END, DATA,
 
   compose,
-  optional,
 
+  ignoreComment,
   ignoreEmptyLines,
-  ignoreSpace,
   packet,
   parseLine,
   parseLiteral,
-  parseWord
+  parseWord,
+  recognizeSpace
 } = require('./util')
 
 const parseColon = parseLiteral(':')
@@ -52,25 +52,27 @@ const parseFeatureWord = parseWord(
   }
 )
 
-const parseBackground = compose(
-  parseBackgroundWord,
-  parseColon,
-  parseTitle,
-  parseSteps
-)
+const parseBackground = compose(({ emit, standard }) => {
+  emit(standard(parseBackgroundWord))
+  emit(standard(parseColon))
+  emit(standard(parseTitle))
+  emit(standard(parseSteps))
+})
 
-const parseScenario = compose(
-  parseScenarioWord,
-  parseColon,
-  parseTitle,
-  optional(
-    parseSummary
-  ),
-  parseSteps
-)
+const parseScenario = compose(({ emit, optional, standard }) => {
+  emit(standard(parseScenarioWord))
+  emit(standard(parseColon))
+  emit(standard(parseTitle))
+  emit(standard(optional(parseSummary)))
+  emit(standard(parseSteps))
+})
 
 function parse (input) {
-  const offset = ignoreEmptyLines(input, 0)
+  let offset = ignoreEmptyLines(input, 0)
+
+  offset = ignoreComment(input, offset)
+
+  offset = ignoreEmptyLines(input, offset)
 
   const parseFeatureResult = parseFeature(input, offset)
   if (parseFeatureResult[VALID]) { return parseFeatureResult[DATA] }
@@ -90,37 +92,32 @@ function parse (input) {
   return undefined
 }
 
-const parseScenarioOutline = compose(
-  parseScenarioWord,
-  parseSpace,
-  parseOutlineWord,
-  parseColon,
-  parseTitle,
-  optional(
-    parseSummary
-  ),
-  parseSteps
-)
+const parseScenarioOutline = compose(({ emit, passthrough, standard }) => {
+  emit(standard(parseScenarioWord))
+  emit(passthrough(parseSpace))
+  emit(standard(parseOutlineWord))
+  emit(standard(parseColon))
+  emit(standard(parseTitle))
+  emit(standard(parseSteps))
+})
 
-const parseExample = compose(
-  parseExampleWord,
-  parseColon,
-  parseTitle,
-  optional(
-    parseSummary
-  ),
-  parseSteps
-)
+const parseExample = compose(({ emit, optional, standard }) => {
+  emit(standard(parseExampleWord))
+  emit(standard(parseColon))
+  emit(standard(parseTitle))
+  emit(standard(optional(parseSummary)))
+  emit(standard(parseSteps))
+})
 
-const parseFeature = compose(
-  parseFeatureWord,
-  parseColon,
-  parseTitle,
-  parseSummary
-)
+const parseFeature = compose(({ emit, optional, standard }) => {
+  emit(standard(parseFeatureWord))
+  emit(standard(parseColon))
+  emit(standard(parseTitle))
+  emit(standard(optional(parseSummary)))
+})
 
 function parseSpace (input, offset) {
-  const nextOffset = ignoreSpace(input, offset)
+  const nextOffset = recognizeSpace(input, offset)
 
   return packet(nextOffset > offset, offset, nextOffset)
 }
@@ -143,7 +140,9 @@ function parseStep (input, offset) {
         true,
         parseLineResult[START],
         parseLineResult[END],
-        { type, stepType, text, fullText }
+        {
+          type, stepType, text, fullText
+        }
       )
     }
   }
@@ -157,13 +156,13 @@ function parseSteps (input, offset) {
   let parseStepResult = parseStep(input, offset)
 
   if (parseStepResult[VALID]) {
-    let first = parseStepResult[DATA]
+    const first = parseStepResult
     let last = first
 
     do {
-      last = parseStepResult[DATA]
+      last = parseStepResult
 
-      nodes.push(parseStepResult[DATA])
+      nodes.push(last[DATA])
 
       parseStepResult = parseStep(input, parseStepResult[END])
     } while (parseStepResult[VALID])
@@ -175,7 +174,8 @@ function parseSteps (input, offset) {
 }
 
 function parseSummary (input, offset) {
-  let start = ignoreEmptyLines(input, offset)
+  const data = []
+  let start = offset
   let end = start
   let parseLineResult = parseLine(input, start)
 
@@ -188,16 +188,20 @@ function parseSummary (input, offset) {
     end = parseLineResult[END]
 
     do {
-      parseLineResult = parseLine(input, ignoreEmptyLines(input, end))
+      data.push(input.slice(parseLineResult[START], parseLineResult[END]))
+
+      parseLineResult = parseLine(input, end)
 
       if (parseLineResult[VALID]) {
         firstToken = input.slice(parseLineResult[START], parseLineResult[DATA])
 
-        if (!/^(given|when|then|and|but)$/i.test(firstToken)) { end = parseLineResult[END] }
+        if (!/^(given|when|then|and|but)$/i.test(firstToken)) {
+          end = parseLineResult[END]
+        }
       }
     } while (parseLineResult[VALID] && !/^(given|when|then|and|but)$/i.test(firstToken))
 
-    const summary = input.slice(start, end)
+    const summary = data.map(text => ({ type: 'text', text }))
 
     return packet(true, start, end, { summary })
   }
@@ -206,9 +210,7 @@ function parseSummary (input, offset) {
 }
 
 function parseTitle (input, offset) {
-  const start = ignoreEmptyLines(input, offset)
-
-  const parseLineResult = parseLine(input, start)
+  const parseLineResult = parseLine(input, offset)
 
   if (parseLineResult[VALID]) {
     const title = input.slice(parseLineResult[START], parseLineResult[END])
