@@ -1,11 +1,14 @@
 {
   "name": "nanospec",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "A javascript parser for the Gherkin language.",
   "scripts": {
+    "check": "npm run lint:check && npm run test",
+    "cover": "nyc --exit --reporter=lcov --reporter=text --per-file npm run test",
+    "lint:check": "standard",
     "lint": "standard --fix",
-    "test": "mocha -ui tdd --recursive test",
-    "test:watch": "mocha -ui tdd -watch --recursive test"
+    "test:dev": "mocha -ui tdd -watch --recursive test",
+    "test": "mocha -ui tdd --recursive test"
   },
   "standard": {
     "globals": [
@@ -38,5 +41,8 @@
     "nyc": "^14.1.1",
     "standard": "^12.0.1",
     "testdouble": "^3.12.1"
+  },
+  "engines": {
+    "node": ">=8"
   }
 }
