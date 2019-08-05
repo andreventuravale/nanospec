@@ -17,7 +17,7 @@ suite('Parser / Parameters', () => {
           |    20 |   5 |   15 |
     `)
 
-    inspect(metadata)
+    // inspect(metadata)
 
     expect(metadata).to.deep.eql({
       type: 'statement',

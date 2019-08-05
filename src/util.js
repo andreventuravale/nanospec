@@ -69,7 +69,7 @@ function reduce (parse, reduce, initial, select = results => results[DATA]) {
   return (input, offset) => {
     const results = parse(input, offset)
 
-    inspect([1231231, results, 4444], [333333, select(results)])
+    // inspect([1231231, results, 4444], [333333, select(results)])
 
     const data = select(results).reduce(reduce, initial)
 

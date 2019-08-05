@@ -1,6 +1,11 @@
-const { token, compose, list } = require('nanogram')
+const {
+  compose,
+  list,
+  optional,
+  token
+} = require('nanogram')
 
-const empty = token('space', /\s+/)
+const empty = token('space', /\s+/m)
 
 const featureKeyword = token('feature-keyword', /feature/i)
 
@@ -8,44 +13,31 @@ const colon = token('colon', /:/)
 
 const phrase = token('phrase', /[^\r\n]+/i)
 
+const text = list('text', phrase, empty)
+
+const feature = compose('feature',
+  empty,
+  featureKeyword,
+  empty,
+  colon,
+  empty,
+  phrase,
+  empty,
+  optional(text)
+)
+
 function parse (input) {
   let offset = 0
-  let temp
 
-  offset = empty(input, offset)[2]
+  let $feature = feature(input, offset)
 
-  temp = featureKeyword(input, offset)
-  offset = temp[2]
-  offset = empty(input, offset)[2]
-
-  temp = colon(input, offset)
-  offset = temp[2]
-  offset = empty(input, offset)[2]
-
-  temp = phrase(input, offset)
-  offset = temp[2]
-  offset = empty(input, offset)[2]
-
-  const title = temp[4][0]
-
-  const summary = []
-
-  temp = phrase(input, offset)
-
-  while (temp[0]) {
-    summary.push({ type: 'text', text: temp[4][0] })
-    offset = temp[2]
-    offset = empty(input, offset)[2]
-    temp = phrase(input, offset)
-  }
-
-  const result = {
+  let result = {
     type: 'feature',
-    title
-  }
-
-  if (summary.length) {
-    result.summary = summary
+    title: $feature.phrase[0][4][0],
+    summary: $feature.text[0][4].map(i => ({
+      type: 'text',
+      text: i[4][0]
+    }))
   }
 
   return result

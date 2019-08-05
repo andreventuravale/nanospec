@@ -11,7 +11,8 @@ suite.only('Parser / Feature', () => {
 
     expect(metadata).to.deep.eql({
       type: 'feature',
-      title: 'Esse laborum sunt ut consequat cupidatat ad cillum tempor in velit labore ullamco occaecat incididunt.'
+      title: 'Esse laborum sunt ut consequat cupidatat ad cillum tempor in velit labore ullamco occaecat incididunt.',
+      summary: []
     })
   })
 
