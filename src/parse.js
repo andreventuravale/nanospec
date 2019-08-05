@@ -8,9 +8,9 @@ const {
 const COLON = token('colon', /:/)
 const WS = token('ws', /\s+/m)
 const FEATURE = token('feature', /feature/i)
-const PHRASE = token('phrase', /[^\r\n]+/i)
+const PHRASE = token(Symbol.for('phrase'), /[^\r\n]+/i)
 
-const text = list('text', PHRASE, WS)
+const text = list(Symbol.for('text'), PHRASE, WS)
 
 const feature = compose('feature',
   WS,
@@ -32,8 +32,8 @@ function parse (input) {
 
   let result = {
     type: 'feature',
-    title: $feature.$phrase[0].data[0],
-    summary: $feature.$text[0].data.map(i => ({
+    title: $feature[Symbol.for('phrase')][0].data[0],
+    summary: $feature[Symbol.for('text')][0].data.map(i => ({
       type: 'text',
       text: i.data[0]
     }))
