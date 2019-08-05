@@ -10,30 +10,45 @@ const phrase = token('phrase', /[^\r\n]+/i)
 
 function parse (input) {
   let offset = 0
-  let r
+  let temp
 
   offset = empty(input, offset)[2]
 
-  r = featureKeyword(input, offset)
-
-  offset = r[2]
-
+  temp = featureKeyword(input, offset)
+  offset = temp[2]
   offset = empty(input, offset)[2]
 
-  r = colon(input, offset)
-
-  offset = r[2]
-
+  temp = colon(input, offset)
+  offset = temp[2]
   offset = empty(input, offset)[2]
 
-  r = phrase(input, offset)
+  temp = phrase(input, offset)
+  offset = temp[2]
+  offset = empty(input, offset)[2]
 
-  const title = r[4][0]
+  const title = temp[4][0]
 
-  return {
+  const summary = []
+
+  temp = phrase(input, offset)
+
+  while (temp[0]) {
+    summary.push({ type: 'text', text: temp[4][0] })
+    offset = temp[2]
+    offset = empty(input, offset)[2]
+    temp = phrase(input, offset)
+  }
+
+  const result = {
     type: 'feature',
     title
   }
+
+  if (summary.length) {
+    result.summary = summary
+  }
+
+  return result
 }
 
 module.exports = {
