@@ -1,61 +1,55 @@
 const { expect } = require('chai')
 const { parse } = require('../util')
 
-suite.skip('Parser / Parameters', () => {
-  test('Parses many parameters having same name', () => {
+suite('Parser / Parameters', () => {
+  test('Parses a scenario having parameters', () => {
     const metadata = parse(`
 
-      Feature : Ut enim ad minima veniam
+      Scenario Outline : Eating
 
-      Scenario Outline : Ut enim ad minima veniam
+        Given there are <start> cucumbers
+        When I eat <eat> cucumbers
+        Then I should have <left> cucumbers
 
-        Given Nemo enim <ipsam> voluptatem
-        When Sed quia <non> <non> <non> numquam eius
-        Then Ut enim ad <minima> veniam
-        And Architecto beatae vitae
+        Examples :
+          | start | eat | left |
+          |    12 |   5 |    7 |
+          |    20 |   5 |   15 |
     `)
 
+    inspect(metadata)
+
     expect(metadata).to.deep.eql({
-      type: 'feature',
-      title: 'Ut enim ad minima veniam',
+      type: 'statement',
+      subtype: 'scenario',
+      modifier: 'outline',
+      title: 'Eating',
       nodes: [
         {
-          type: 'statement',
-          subtype: 'scenario',
-          modifier: 'outline',
-          title: 'Ut enim ad minima veniam',
+          type: 'step',
+          subtype: 'given',
+          text: 'there are <start> cucumbers',
+          fullText: 'Given there are <start> cucumbers',
           nodes: [
-            {
-              type: 'step',
-              subtype: 'given',
-              text: 'Nemo enim <ipsam> voluptatem',
-              nodes: [
-                { type: 'parameter', name: 'ipsam' }
-              ]
-            },
-            {
-              type: 'step',
-              subtype: 'when',
-              text: 'Sed quia <non> <non> <non> numquam eius',
-              nodes: [
-                { type: 'parameter', name: 'non' },
-                { type: 'parameter', name: 'non' },
-                { type: 'parameter', name: 'non' }
-              ]
-            },
-            {
-              type: 'step',
-              subtype: 'then',
-              text: 'Ut enim ad <minima> veniam',
-              nodes: [
-                { type: 'parameter', name: 'minima' }
-              ]
-            },
-            {
-              type: 'step',
-              subtype: 'and',
-              text: 'Architecto beatae vitae'
-            }
+            { type: 'parameter', name: 'start' }
+          ]
+        },
+        {
+          type: 'step',
+          subtype: 'when',
+          text: 'I eat <eat> cucumbers',
+          fullText: 'When I eat <eat> cucumbers',
+          nodes: [
+            { type: 'parameter', name: 'eat' }
+          ]
+        },
+        {
+          type: 'step',
+          subtype: 'then',
+          text: 'I should have <left> cucumbers',
+          fullText: 'Then I should have <left> cucumbers',
+          nodes: [
+            { type: 'parameter', name: 'left' }
           ]
         }
       ]

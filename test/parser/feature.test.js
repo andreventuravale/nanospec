@@ -2,7 +2,7 @@ const { expect } = require('chai')
 const { parse } = require('./util')
 
 suite('Parser / Feature', () => {
-  test('Parses a feature with only a title', () => {
+  test.only('Parses a feature with only a title', () => {
     const metadata = parse(`
 
       Feature : Esse laborum sunt ut consequat cupidatat ad cillum tempor in velit labore ullamco occaecat incididunt.

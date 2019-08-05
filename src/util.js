@@ -38,6 +38,18 @@ function ignoreEmptyLinesBefore (parse) {
   }
 }
 
+function spaces (input, offset) {
+  const i = recognizeSpace(input, offset)
+
+  return packet(i > offset, offset, i)
+}
+
+function newLines (input, offset) {
+  const i = recognizeNewLine(input, offset)
+
+  return packet(i > offset, offset, i)
+}
+
 function passthrough (parse) {
   return (input, offset) => parse(input, offset)
 }
@@ -50,6 +62,49 @@ function optional (parse) {
       return parseResult
     }
     return packet(true, offset, offset, {})
+  }
+}
+
+function reduce (parse, reduce, initial, select = results => results[DATA]) {
+  return (input, offset) => {
+    const results = parse(input, offset)
+
+    inspect([1231231, results, 4444], [333333, select(results)])
+
+    const data = select(results).reduce(reduce, initial)
+
+    // inspect(packet(true, results[START], results[END], data))
+
+    return packet(true, results[START], results[END], data)
+  }
+}
+
+function many (parseItem, parseSeparator) {
+  return (input, offset) => {
+    let parseResult = parseItem(input, offset)
+    let parseSeparatorResult
+
+    if (parseResult[VALID]) {
+      const first = parseResult
+      let last = first
+      const data = []
+
+      do {
+        last = parseResult
+
+        data.push(last[DATA])
+
+        parseSeparatorResult = parseSeparator(input, last[END])
+
+        if (parseSeparatorResult[VALID]) {
+          parseResult = parseItem(input, parseSeparatorResult[END])
+        }
+      } while (parseSeparatorResult[VALID] && parseResult[VALID])
+
+      return packet(true, first[START], last[END], data)
+    }
+
+    return packet(false)
   }
 }
 
@@ -68,8 +123,12 @@ function compose (setup) {
   setup({
     emit,
     ignoreEmptyLinesBefore,
+    many,
+    reduce,
     optional,
     passthrough,
+    spaces,
+    newLines,
     standard
   })
 
@@ -156,6 +215,20 @@ function parseWord (lcase, ucase, result) {
   }
 }
 
+function parseNonSpace (input, offset) {
+  const start = offset
+
+  const end = recognizeNonSpace(input, start)
+
+  if (end) {
+    const fullText = input.slice(start, end)
+
+    return packet(true, start, end, { fullText })
+  }
+
+  return packet(false)
+}
+
 function recognizeLiteral (input, offset, literal) {
   let i = offset
   let j = 0
@@ -177,6 +250,14 @@ function recognizeSpace (input, offset) {
   const start = offset
 
   const end = ignoreRegex(input, start, /[ \t]/)
+
+  return end > start ? end : 0
+}
+
+function recognizeNewLine (input, offset) {
+  const start = offset
+
+  const end = ignoreRegex(input, start, /[\r\n]/)
 
   return end > start ? end : 0
 }
@@ -206,5 +287,6 @@ module.exports = {
   parseWord,
   recognizeNonSpace,
   recognizeSpace,
-  recognizeWord
+  recognizeWord,
+  parseNonSpace
 }
