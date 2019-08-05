@@ -5,25 +5,24 @@ const {
   token
 } = require('nanogram')
 
-const empty = token('space', /\s+/m)
+const COLON = token('colon', /:/)
+const WS = token('ws', /\s+/m)
+const FEATURE = token('feature', /feature/i)
+const PHRASE = token('phrase', /[^\r\n]+/i)
 
-const featureKeyword = token('feature-keyword', /feature/i)
-
-const colon = token('colon', /:/)
-
-const phrase = token('phrase', /[^\r\n]+/i)
-
-const text = list('text', phrase, empty)
+const text = list('text', PHRASE, WS)
 
 const feature = compose('feature',
-  empty,
-  featureKeyword,
-  empty,
-  colon,
-  empty,
-  phrase,
-  empty,
-  optional(text)
+  WS,
+  FEATURE,
+  WS,
+  COLON,
+  WS,
+  PHRASE,
+  WS,
+  optional(
+    text
+  )
 )
 
 function parse (input) {
@@ -33,10 +32,10 @@ function parse (input) {
 
   let result = {
     type: 'feature',
-    title: $feature.phrase[0][4][0],
-    summary: $feature.text[0][4].map(i => ({
+    title: $feature.$phrase[0].data[0],
+    summary: $feature.$text[0].data.map(i => ({
       type: 'text',
-      text: i[4][0]
+      text: i.data[0]
     }))
   }
 
