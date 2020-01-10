@@ -17,8 +17,6 @@ suite.skip('Parser / Parameters', () => {
           |    20 |   5 |   15 |
     `)
 
-    // inspect(metadata)
-
     expect(metadata).to.deep.eql({
       type: 'statement',
       subtype: 'scenario',

@@ -5,8 +5,6 @@ const {
   token
 } = require('nanogram')
 
-global.inspect = x => console.log(require('util').inspect(x, false, 100, true))
-
 const BACKGROUND = token(Symbol.for('background'), /background/i)
 const COLON = token(Symbol.for('colon'), /:/)
 const FEATURE = token(Symbol.for('feature'), /feature/i)
