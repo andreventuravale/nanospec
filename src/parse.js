@@ -9,18 +9,22 @@ global.inspect = x => console.log(require('util').inspect(x, false, 100, true))
 
 const BACKGROUND = token(Symbol.for('background'), /background/i)
 const COLON = token(Symbol.for('colon'), /:/)
-const FEATURE = token('feature', /feature/i)
+const FEATURE = token(Symbol.for('feature'), /feature/i)
 const PHRASE = token(Symbol.for('phrase'), /(?!(?:given|when|then|and|but)[ \t])[^\s]+([ \t]+[^\s]+)*/yi)
 const SCENARIO = token(Symbol.for('scenario'), /(scenario|example)/i)
 const STEP = token(Symbol.for('phrase'), /(?:(given|when|then|and|but)[ \t]+)([^\r\n]+)/i)
+const TAG = token('tag', /@\w+/i)
 const WS = token('ws', /\s+/ym)
 
 const text = list(Symbol.for('text'), PHRASE, WS)
 
 const steps = list(Symbol.for('steps'), STEP, WS)
 
+const tags = list(Symbol.for('tags'), TAG, WS)
+
 const feature = compose('feature',
   WS,
+  optional(tags),
   FEATURE,
   optional(WS),
   COLON,
@@ -92,6 +96,37 @@ function transformScenario ($scenario) {
   }
 }
 
+function transformFeature ($feature) {
+  return {
+    type: 'statement',
+    subtype: 'feature',
+    nodes: [
+      {
+        type: 'title',
+        text: $feature[Symbol.for('phrase')][0].data[0]
+      },
+      ...$feature[Symbol.for('text')][0].data.map(i => ({
+        type: 'summary',
+        text: i.data[0]
+      })),
+      ...$feature[Symbol.for('tags')][0].data.map(i => ({
+        type: 'tag',
+        text: i.data[0]
+      })),
+      {
+        subtype: 'keyword',
+        text: $feature[Symbol.for('feature')][0].data[0],
+        type: 'token'
+      },
+      {
+        subtype: 'colon',
+        text: $feature[Symbol.for('colon')][0].data[0],
+        type: 'token'
+      }
+    ]
+  }
+}
+
 function transformBackground ($background) {
   return {
     type: 'statement',
@@ -134,14 +169,7 @@ function parse (rawInput) {
   let $feature = feature(input, offset)
 
   if ($feature.found) {
-    return {
-      type: 'feature',
-      title: $feature[Symbol.for('phrase')][0].data[0],
-      summary: $feature[Symbol.for('text')][0].data.map(i => ({
-        type: 'text',
-        text: i.data[0]
-      }))
-    }
+    return transformFeature($feature)
   }
 
   let $background = background(input, offset)

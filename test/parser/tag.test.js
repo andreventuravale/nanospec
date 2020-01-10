@@ -1,18 +1,55 @@
 const { expect } = require('chai')
 const { parse } = require('./util')
 
-suite.skip('Parser / Tag', () => {
-  test('Parses feature level tag', () => {
+suite('Parser / Tag', () => {
+  test('Parses feature tags', () => {
     const metadata = parse(`
-      @tag
-      Feature : Lorem ipsum
+      @foo @bar
+      Feature : Ad nisi officia ullamco ex commodo.
+
+        Ex sit irure occaecat et irure Lorem tempor nulla pariatur exercitation.
+        Anim non magna pariatur cupidatat ipsum anim.
+        Duis consectetur nisi ullamco qui ex.
     `)
 
     expect(metadata).to.deep.eql({
-      type: 'feature',
-      title: 'Lorem ipsum',
-      tag: '@tag',
-      nodes: [
+      'type': 'statement',
+      'subtype': 'feature',
+      'nodes': [
+        {
+          'type': 'title',
+          'text': 'Ad nisi officia ullamco ex commodo.'
+        },
+        {
+          'type': 'summary',
+          'text': 'Ex sit irure occaecat et irure Lorem tempor nulla pariatur exercitation.'
+        },
+        {
+          'type': 'summary',
+          'text': 'Anim non magna pariatur cupidatat ipsum anim.'
+        },
+        {
+          'type': 'summary',
+          'text': 'Duis consectetur nisi ullamco qui ex.'
+        },
+        {
+          'type': 'tag',
+          'text': '@foo'
+        },
+        {
+          'type': 'tag',
+          'text': '@bar'
+        },
+        {
+          'subtype': 'keyword',
+          'text': 'Feature',
+          'type': 'token'
+        },
+        {
+          'subtype': 'colon',
+          'text': ':',
+          'type': 'token'
+        }
       ]
     })
   })

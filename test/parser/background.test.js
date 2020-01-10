@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { parse } = require('./util')
 
-suite.only('Parser / Background', () => {
+suite('Parser / Background', () => {
   test('Parses a background with some steps', () => {
     const metadata = parse(`
 

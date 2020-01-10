@@ -3,7 +3,7 @@ const { parse } = require('./util')
 
 suite('Parser / Comments', () => {
   suite('Comments are ignored', () => {
-    test.only('For features', () => {
+    test('For features', () => {
       const metadata = parse(`
         # Lorem quis anim adipisicing aliquip aliqua culpa tempor ex cillum aute.
         # Tempor consectetur eiusmod exercitation esse deserunt aliquip voluptate.
@@ -27,20 +27,34 @@ suite('Parser / Comments', () => {
       `)
 
       expect(metadata).to.deep.eql({
-        'type': 'feature',
-        'title': 'Culpa pariatur ipsum cillum laboris consequat sint ipsum',
-        'summary': [
+        'type': 'statement',
+        'subtype': 'feature',
+        'nodes': [
           {
-            'type': 'text',
+            'type': 'title',
+            'text': 'Culpa pariatur ipsum cillum laboris consequat sint ipsum'
+          },
+          {
+            'type': 'summary',
             'text': 'Anim ex qui pariatur magna aliquip.'
           },
           {
-            'type': 'text',
+            'type': 'summary',
             'text': 'Lorem ut velit velit voluptate dolore ea laboris culpa.'
           },
           {
-            'type': 'text',
+            'type': 'summary',
             'text': 'Nulla anim culpa consequat elit tempor in esse aute nostrud consequat laborum.'
+          },
+          {
+            'subtype': 'keyword',
+            'text': 'Feature',
+            'type': 'token'
+          },
+          {
+            'subtype': 'colon',
+            'text': ':',
+            'type': 'token'
           }
         ]
       })

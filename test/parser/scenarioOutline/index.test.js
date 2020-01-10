@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { parse } = require('../util')
 
-suite('Parser / Scenario Outline', () => {
+suite.skip('Parser / Scenario Outline', () => {
   test('Parses a scenario outline with some steps', () => {
     const metadata = parse(`
 

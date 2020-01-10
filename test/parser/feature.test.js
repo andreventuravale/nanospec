@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { parse } = require('./util')
 
-suite.only('Parser / Feature', () => {
+suite('Parser / Feature', () => {
   test('Parses a feature with only a title', () => {
     const metadata = parse(`
 
@@ -10,9 +10,24 @@ suite.only('Parser / Feature', () => {
     `)
 
     expect(metadata).to.deep.eql({
-      'type': 'feature',
-      'title': 'Esse laborum sunt ut consequat cupidatat ad cillum tempor in velit labore ullamco occaecat incididunt.',
-      'summary': []
+      'type': 'statement',
+      'subtype': 'feature',
+      'nodes': [
+        {
+          'type': 'title',
+          'text': 'Esse laborum sunt ut consequat cupidatat ad cillum tempor in velit labore ullamco occaecat incididunt.'
+        },
+        {
+          'subtype': 'keyword',
+          'text': 'Feature',
+          'type': 'token'
+        },
+        {
+          'subtype': 'colon',
+          'text': ':',
+          'type': 'token'
+        }
+      ]
     })
   })
 
@@ -27,20 +42,34 @@ suite.only('Parser / Feature', () => {
     `)
 
     expect(metadata).to.deep.eql({
-      'type': 'feature',
-      'title': 'Est aute non in aute elit pariatur cillum enim ex aliqua aute exercitation.',
-      'summary': [
+      'type': 'statement',
+      'subtype': 'feature',
+      'nodes': [
         {
-          'type': 'text',
+          'type': 'title',
+          'text': 'Est aute non in aute elit pariatur cillum enim ex aliqua aute exercitation.'
+        },
+        {
+          'type': 'summary',
           'text': 'Culpa tempor eiusmod eu commodo incididunt.'
         },
         {
-          'type': 'text',
+          'type': 'summary',
           'text': 'Occaecat tempor ex laborum incididunt.'
         },
         {
-          'type': 'text',
+          'type': 'summary',
           'text': 'Culpa deserunt est elit veniam.'
+        },
+        {
+          'subtype': 'keyword',
+          'text': 'Feature',
+          'type': 'token'
+        },
+        {
+          'subtype': 'colon',
+          'text': ':',
+          'type': 'token'
         }
       ]
     })
