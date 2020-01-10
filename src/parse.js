@@ -7,6 +7,7 @@ const {
 
 global.inspect = x => console.log(require('util').inspect(x, false, 100, true))
 
+const BACKGROUND = token(Symbol.for('background'), /background/i)
 const COLON = token(Symbol.for('colon'), /:/)
 const FEATURE = token('feature', /feature/i)
 const PHRASE = token(Symbol.for('phrase'), /(?!(?:given|when|then|and|but)[ \t])[^\s]+([ \t]+[^\s]+)*/yi)
@@ -47,6 +48,15 @@ const scenario = compose('scenario',
   optional(steps)
 )
 
+const background = compose('background',
+  optional(WS),
+  BACKGROUND,
+  optional(WS),
+  COLON,
+  optional(WS),
+  optional(steps)
+)
+
 function transformScenario ($scenario) {
   return {
     type: 'statement',
@@ -82,6 +92,33 @@ function transformScenario ($scenario) {
   }
 }
 
+function transformBackground ($background) {
+  return {
+    type: 'statement',
+    subtype: 'background',
+    nodes: [
+      ...$background[Symbol.for('steps')][0].data.map(i => ({
+        type: 'step',
+        subtype: i.data[1].toLowerCase(),
+        nodes: [
+          { type: 'definition', text: i.data[2] },
+          { type: 'token', subtype: 'keyword', text: i.data[1] }
+        ]
+      })),
+      {
+        subtype: 'keyword',
+        text: $background[Symbol.for('background')][0].data[0],
+        type: 'token'
+      },
+      {
+        subtype: 'colon',
+        text: $background[Symbol.for('colon')][0].data[0],
+        type: 'token'
+      }
+    ]
+  }
+}
+
 function parse (input) {
   let offset = 0
 
@@ -96,6 +133,12 @@ function parse (input) {
         text: i.data[0]
       }))
     }
+  }
+
+  let $background = background(input, offset)
+
+  if ($background.found) {
+    return transformBackground($background)
   }
 
   let $scenario = scenario(input, offset)
