@@ -119,7 +119,16 @@ function transformBackground ($background) {
   }
 }
 
-function parse (input) {
+function stripComments (input) {
+  return input
+    .split('\n')
+    .filter(w => w.trim()[0] !== '#')
+    .join('\n')
+}
+
+function parse (rawInput) {
+  const input = stripComments(rawInput)
+
   let offset = 0
 
   let $feature = feature(input, offset)
