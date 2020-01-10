@@ -60,7 +60,7 @@ const background = compose('background',
 )
 
 function transformScenario ($scenario) {
-  return {
+  const metadata = {
     type: 'statement',
     subtype: 'scenario',
     nodes: [
@@ -73,12 +73,20 @@ function transformScenario ($scenario) {
         text: i.data[0]
       })),
       ...$scenario[Symbol.for('steps')][0].data.map(i => ({
-        type: 'step',
-        subtype: i.data[1].toLowerCase(),
-        nodes: [
-          { type: 'definition', text: i.data[2] },
-          { type: 'token', subtype: 'keyword', text: i.data[1] }
-        ]
+        ...{
+          type: 'step',
+          subtype: i.data[1].toLowerCase(),
+          nodes: [
+            { type: 'definition', text: i.data[2] },
+            { type: 'token', subtype: 'keyword', text: i.data[1] }
+          ]
+        },
+        ...(() => {
+          const t = {}
+          t[Symbol.for('from')] = i.from
+          t[Symbol.for('to')] = i.to
+          return t
+        })()
       })),
       {
         subtype: 'keyword',
@@ -92,6 +100,12 @@ function transformScenario ($scenario) {
       }
     ]
   }
+
+  metadata[Symbol.for('utils')] = {
+    locationOf: node => [node[Symbol.for('from')], node[Symbol.for('to')]]
+  }
+
+  return metadata
 }
 
 function transformFeature ($feature) {
