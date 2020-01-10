@@ -13,36 +13,68 @@ suite.only('Parser / Scenario', () => {
     `)
 
     expect(metadata).to.deep.eql({
-      type: 'statement',
-      subtype: 'scenario',
-      nodes: [
-        { type: 'title', text: 'Quis autem vel eum' },
+      'type': 'statement',
+      'subtype': 'scenario',
+      'nodes': [
         {
-          type: 'step',
-          subtype: 'given',
-          nodes: [
-            { type: 'definition', text: 'taque earum rerum' },
-            { type: 'token', subtype: 'keyword', text: 'Given' }
+          'type': 'title',
+          'text': 'Quis autem vel eum'
+        },
+        {
+          'type': 'step',
+          'subtype': 'given',
+          'nodes': [
+            {
+              'type': 'definition',
+              'text': 'taque earum rerum'
+            },
+            {
+              'type': 'token',
+              'subtype': 'keyword',
+              'text': 'Given'
+            }
           ]
         },
         {
-          type: 'step',
-          subtype: 'when',
-          nodes: [
-            { type: 'definition', text: 'minus id quod maxime' },
-            { type: 'token', subtype: 'keyword', text: 'When' }
+          'type': 'step',
+          'subtype': 'when',
+          'nodes': [
+            {
+              'type': 'definition',
+              'text': 'minus id quod maxime'
+            },
+            {
+              'type': 'token',
+              'subtype': 'keyword',
+              'text': 'When'
+            }
           ]
         },
         {
-          type: 'step',
-          subtype: 'then',
-          nodes: [
-            { type: 'definition', text: 'et expedita distinctio' },
-            { type: 'token', subtype: 'keyword', text: 'Then' }
+          'type': 'step',
+          'subtype': 'then',
+          'nodes': [
+            {
+              'type': 'definition',
+              'text': 'et expedita distinctio'
+            },
+            {
+              'type': 'token',
+              'subtype': 'keyword',
+              'text': 'Then'
+            }
           ]
         },
-        { type: 'token', subtype: 'keyword', text: 'Scenario' },
-        { type: 'token', subtype: 'colon', text: ':' }
+        {
+          'subtype': 'keyword',
+          'text': 'Scenario',
+          'type': 'token'
+        },
+        {
+          'subtype': 'colon',
+          'text': ':',
+          'type': 'token'
+        }
       ]
     })
   })
@@ -61,38 +93,76 @@ suite.only('Parser / Scenario', () => {
     `)
 
     expect(metadata).to.deep.eql({
-      type: 'statement',
-      subtype: 'scenario',
-      nodes: [
-        { type: 'title', text: 'Quis autem vel eum' },
-        { type: 'summary', text: 'Qui occaecat excepteur sit minim dolor' },
-        { type: 'summary', text: 'ipsum pariatur cupidatat officia aute nisi.' },
+      'type': 'statement',
+      'subtype': 'scenario',
+      'nodes': [
         {
-          type: 'step',
-          subtype: 'given',
-          nodes: [
-            { type: 'definition', text: 'taque earum rerum' },
-            { type: 'token', subtype: 'keyword', text: 'Given' }
+          'type': 'title',
+          'text': 'Quis autem vel eum'
+        },
+        {
+          'type': 'summary',
+          'text': 'Qui occaecat excepteur sit minim dolor'
+        },
+        {
+          'type': 'summary',
+          'text': 'ipsum pariatur cupidatat officia aute nisi.'
+        },
+        {
+          'type': 'step',
+          'subtype': 'given',
+          'nodes': [
+            {
+              'type': 'definition',
+              'text': 'taque earum rerum'
+            },
+            {
+              'type': 'token',
+              'subtype': 'keyword',
+              'text': 'Given'
+            }
           ]
         },
         {
-          type: 'step',
-          subtype: 'when',
-          nodes: [
-            { type: 'definition', text: 'minus id quod maxime' },
-            { type: 'token', subtype: 'keyword', text: 'When' }
+          'type': 'step',
+          'subtype': 'when',
+          'nodes': [
+            {
+              'type': 'definition',
+              'text': 'minus id quod maxime'
+            },
+            {
+              'type': 'token',
+              'subtype': 'keyword',
+              'text': 'When'
+            }
           ]
         },
         {
-          type: 'step',
-          subtype: 'then',
-          nodes: [
-            { type: 'definition', text: 'et expedita distinctio' },
-            { type: 'token', subtype: 'keyword', text: 'Then' }
+          'type': 'step',
+          'subtype': 'then',
+          'nodes': [
+            {
+              'type': 'definition',
+              'text': 'et expedita distinctio'
+            },
+            {
+              'type': 'token',
+              'subtype': 'keyword',
+              'text': 'Then'
+            }
           ]
         },
-        { type: 'token', subtype: 'keyword', text: 'Scenario' },
-        { type: 'token', subtype: 'colon', text: ':' }
+        {
+          'subtype': 'keyword',
+          'text': 'Scenario',
+          'type': 'token'
+        },
+        {
+          'subtype': 'colon',
+          'text': ':',
+          'type': 'token'
+        }
       ]
     })
   })
@@ -103,12 +173,23 @@ suite.only('Parser / Scenario', () => {
     `)
 
     expect(metadata).to.deep.eql({
-      type: 'statement',
-      subtype: 'scenario',
-      nodes: [
-        { type: 'title', text: 'Amet eiusmod ipsum voluptate dolore incididunt.' },
-        { type: 'token', subtype: 'keyword', text: 'SCENario' },
-        { type: 'token', subtype: 'colon', text: ':' }
+      'type': 'statement',
+      'subtype': 'scenario',
+      'nodes': [
+        {
+          'type': 'title',
+          'text': 'Amet eiusmod ipsum voluptate dolore incididunt.'
+        },
+        {
+          'subtype': 'keyword',
+          'text': 'SCENario',
+          'type': 'token'
+        },
+        {
+          'subtype': 'colon',
+          'text': ':',
+          'type': 'token'
+        }
       ]
     })
   })
@@ -117,12 +198,23 @@ suite.only('Parser / Scenario', () => {
     const metadata = parse(` Scenario: Qui aliqua elit mollit non irure incididunt veniam ea laborum. `)
 
     expect(metadata).to.deep.eql({
-      type: 'statement',
-      subtype: 'scenario',
-      nodes: [
-        { type: 'title', text: 'Qui aliqua elit mollit non irure incididunt veniam ea laborum.' },
-        { type: 'token', subtype: 'keyword', text: 'Scenario' },
-        { type: 'token', subtype: 'colon', text: ':' }
+      'type': 'statement',
+      'subtype': 'scenario',
+      'nodes': [
+        {
+          'type': 'title',
+          'text': 'Qui aliqua elit mollit non irure incididunt veniam ea laborum.'
+        },
+        {
+          'subtype': 'keyword',
+          'text': 'Scenario',
+          'type': 'token'
+        },
+        {
+          'subtype': 'colon',
+          'text': ':',
+          'type': 'token'
+        }
       ]
     })
   })
@@ -131,12 +223,23 @@ suite.only('Parser / Scenario', () => {
     const metadata = parse(`Scenario: Qui aliqua elit mollit non irure incididunt veniam ea laborum. `)
 
     expect(metadata).to.deep.eql({
-      type: 'statement',
-      subtype: 'scenario',
-      nodes: [
-        { type: 'title', text: 'Qui aliqua elit mollit non irure incididunt veniam ea laborum.' },
-        { type: 'token', subtype: 'keyword', text: 'Scenario' },
-        { type: 'token', subtype: 'colon', text: ':' }
+      'type': 'statement',
+      'subtype': 'scenario',
+      'nodes': [
+        {
+          'type': 'title',
+          'text': 'Qui aliqua elit mollit non irure incididunt veniam ea laborum.'
+        },
+        {
+          'subtype': 'keyword',
+          'text': 'Scenario',
+          'type': 'token'
+        },
+        {
+          'subtype': 'colon',
+          'text': ':',
+          'type': 'token'
+        }
       ]
     })
   })
@@ -145,12 +248,23 @@ suite.only('Parser / Scenario', () => {
     const metadata = parse(` Scenario: Qui aliqua elit mollit non irure incididunt veniam ea laborum.`)
 
     expect(metadata).to.deep.eql({
-      type: 'statement',
-      subtype: 'scenario',
-      nodes: [
-        { type: 'title', text: 'Qui aliqua elit mollit non irure incididunt veniam ea laborum.' },
-        { type: 'token', subtype: 'keyword', text: 'Scenario' },
-        { type: 'token', subtype: 'colon', text: ':' }
+      'type': 'statement',
+      'subtype': 'scenario',
+      'nodes': [
+        {
+          'type': 'title',
+          'text': 'Qui aliqua elit mollit non irure incididunt veniam ea laborum.'
+        },
+        {
+          'subtype': 'keyword',
+          'text': 'Scenario',
+          'type': 'token'
+        },
+        {
+          'subtype': 'colon',
+          'text': ':',
+          'type': 'token'
+        }
       ]
     })
   })
@@ -159,12 +273,23 @@ suite.only('Parser / Scenario', () => {
     const metadata = parse(` Scenario :Qui aliqua elit mollit non irure incididunt veniam ea laborum. `)
 
     expect(metadata).to.deep.eql({
-      type: 'statement',
-      subtype: 'scenario',
-      nodes: [
-        { type: 'title', text: 'Qui aliqua elit mollit non irure incididunt veniam ea laborum.' },
-        { type: 'token', subtype: 'keyword', text: 'Scenario' },
-        { type: 'token', subtype: 'colon', text: ':' }
+      'type': 'statement',
+      'subtype': 'scenario',
+      'nodes': [
+        {
+          'type': 'title',
+          'text': 'Qui aliqua elit mollit non irure incididunt veniam ea laborum.'
+        },
+        {
+          'subtype': 'keyword',
+          'text': 'Scenario',
+          'type': 'token'
+        },
+        {
+          'subtype': 'colon',
+          'text': ':',
+          'type': 'token'
+        }
       ]
     })
   })
