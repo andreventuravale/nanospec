@@ -183,6 +183,4 @@ function parse (rawInput) {
   }
 }
 
-module.exports = {
-  parse
-}
+module.exports = parse

@@ -2,6 +2,7 @@
   "name": "nanospec",
   "version": "2.0.1",
   "description": "A javascript parser for the Gherkin language.",
+  "main": "src/index",
   "scripts": {
     "check": "npm run lint:check && npm run test",
     "cover": "nyc --exit --reporter=lcov --reporter=text --per-file npm run test",

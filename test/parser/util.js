@@ -1,4 +1,4 @@
-const { parse } = require('../../src/parse')
+const parse = require('../../src/parse')
 
 module.exports = {
   parse (text) {
