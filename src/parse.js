@@ -11,7 +11,7 @@ const BACKGROUND = token(Symbol.for('background'), /background/i)
 const COLON = token(Symbol.for('colon'), /:/)
 const FEATURE = token('feature', /feature/i)
 const PHRASE = token(Symbol.for('phrase'), /(?!(?:given|when|then|and|but)[ \t])[^\s]+([ \t]+[^\s]+)*/yi)
-const SCENARIO = token(Symbol.for('scenario'), /scenario/i)
+const SCENARIO = token(Symbol.for('scenario'), /(scenario|example)/i)
 const STEP = token(Symbol.for('phrase'), /(?:(given|when|then|and|but)[ \t]+)([^\r\n]+)/i)
 const WS = token('ws', /\s+/ym)
 

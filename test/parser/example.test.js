@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { parse } = require('./util')
 
-suite('Parser / Example', () => {
+suite.only('Parser / Example', () => {
   test('Parses an example with some steps', () => {
     const metadata = parse(`
 
@@ -13,13 +13,68 @@ suite('Parser / Example', () => {
     `)
 
     expect(metadata).to.deep.eql({
-      type: 'statement',
-      subtype: 'example',
-      title: 'Adipisicing cillum fugiat tempor voluptate consectetur officia aliqua adipisicing incididunt',
-      nodes: [
-        { type: 'step', subtype: 'given', text: 'Velit ut id eiusmod cupidatat tempor', fullText: 'Given Velit ut id eiusmod cupidatat tempor' },
-        { type: 'step', subtype: 'when', text: 'Pariatur occaecat exercitation excepteur nostrud culpa exercitation', fullText: 'When Pariatur occaecat exercitation excepteur nostrud culpa exercitation' },
-        { type: 'step', subtype: 'then', text: 'Reprehenderit aliquip cupidatat ut laboris fugiat', fullText: 'Then Reprehenderit aliquip cupidatat ut laboris fugiat' }
+      'type': 'statement',
+      'subtype': 'scenario',
+      'nodes': [
+        {
+          'type': 'title',
+          'text': 'Adipisicing cillum fugiat tempor voluptate consectetur officia aliqua adipisicing incididunt'
+        },
+        {
+          'type': 'step',
+          'subtype': 'given',
+          'nodes': [
+            {
+              'type': 'definition',
+              'text': 'Velit ut id eiusmod cupidatat tempor'
+            },
+            {
+              'type': 'token',
+              'subtype': 'keyword',
+              'text': 'Given'
+            }
+          ]
+        },
+        {
+          'type': 'step',
+          'subtype': 'when',
+          'nodes': [
+            {
+              'type': 'definition',
+              'text': 'Pariatur occaecat exercitation excepteur nostrud culpa exercitation'
+            },
+            {
+              'type': 'token',
+              'subtype': 'keyword',
+              'text': 'When'
+            }
+          ]
+        },
+        {
+          'type': 'step',
+          'subtype': 'then',
+          'nodes': [
+            {
+              'type': 'definition',
+              'text': 'Reprehenderit aliquip cupidatat ut laboris fugiat'
+            },
+            {
+              'type': 'token',
+              'subtype': 'keyword',
+              'text': 'Then'
+            }
+          ]
+        },
+        {
+          'subtype': 'keyword',
+          'text': 'Example',
+          'type': 'token'
+        },
+        {
+          'subtype': 'colon',
+          'text': ':',
+          'type': 'token'
+        }
       ]
     })
   })
@@ -38,17 +93,76 @@ suite('Parser / Example', () => {
     `)
 
     expect(metadata).to.deep.eql({
-      type: 'statement',
-      subtype: 'example',
-      title: 'Quis reprehenderit quis ullamco esse nisi cupidatat est incididunt voluptate eiusmod id non fugiat',
-      summary: [
-        { type: 'text', text: 'Non sunt sint incididunt cillum cupidatat ipsum culpa id laborum fugiat duis.' },
-        { type: 'text', text: 'Id nisi mollit voluptate dolore excepteur labore eiusmod veniam ipsum Lorem enim incididunt occaecat proident.' }
-      ],
-      nodes: [
-        { type: 'step', subtype: 'given', text: 'Nulla tempor sit ad officia consequat aliquip commodo exercitation commodo officia', fullText: 'Given Nulla tempor sit ad officia consequat aliquip commodo exercitation commodo officia' },
-        { type: 'step', subtype: 'when', text: 'Et qui quis nostrud reprehenderit cupidatat commodo sint incididunt', fullText: 'When Et qui quis nostrud reprehenderit cupidatat commodo sint incididunt' },
-        { type: 'step', subtype: 'then', text: 'Dolor Lorem adipisicing proident dolor Lorem irure', fullText: 'Then Dolor Lorem adipisicing proident dolor Lorem irure' }
+      'type': 'statement',
+      'subtype': 'scenario',
+      'nodes': [
+        {
+          'type': 'title',
+          'text': 'Quis reprehenderit quis ullamco esse nisi cupidatat est incididunt voluptate eiusmod id non fugiat'
+        },
+        {
+          'type': 'summary',
+          'text': 'Non sunt sint incididunt cillum cupidatat ipsum culpa id laborum fugiat duis.'
+        },
+        {
+          'type': 'summary',
+          'text': 'Id nisi mollit voluptate dolore excepteur labore eiusmod veniam ipsum Lorem enim incididunt occaecat proident.'
+        },
+        {
+          'type': 'step',
+          'subtype': 'given',
+          'nodes': [
+            {
+              'type': 'definition',
+              'text': 'Nulla tempor sit ad officia consequat aliquip commodo exercitation commodo officia'
+            },
+            {
+              'type': 'token',
+              'subtype': 'keyword',
+              'text': 'Given'
+            }
+          ]
+        },
+        {
+          'type': 'step',
+          'subtype': 'when',
+          'nodes': [
+            {
+              'type': 'definition',
+              'text': 'Et qui quis nostrud reprehenderit cupidatat commodo sint incididunt'
+            },
+            {
+              'type': 'token',
+              'subtype': 'keyword',
+              'text': 'When'
+            }
+          ]
+        },
+        {
+          'type': 'step',
+          'subtype': 'then',
+          'nodes': [
+            {
+              'type': 'definition',
+              'text': 'Dolor Lorem adipisicing proident dolor Lorem irure'
+            },
+            {
+              'type': 'token',
+              'subtype': 'keyword',
+              'text': 'Then'
+            }
+          ]
+        },
+        {
+          'subtype': 'keyword',
+          'text': 'Example',
+          'type': 'token'
+        },
+        {
+          'subtype': 'colon',
+          'text': ':',
+          'type': 'token'
+        }
       ]
     })
   })
