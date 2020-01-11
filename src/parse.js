@@ -6,6 +6,7 @@ const sfeature = Symbol.for('feature')
 const sfrom = Symbol.for('from')
 const sphrase = Symbol.for('phrase')
 const sscenario = Symbol.for('scenario')
+const sstep = Symbol.for('step')
 const ssteps = Symbol.for('steps')
 const stags = Symbol.for('tags')
 const stext = Symbol.for('text')
@@ -21,7 +22,8 @@ const STEP = token('step', /(?:(given|when|then|and|but)[ \t]+)([^\r\n]+)/i)
 const TAG = token('tag', /@\w+/i)
 const WS = token('ws', /\s+/ym)
 
-const steps = list(ssteps, STEP, WS)
+const step = compose(sstep, STEP)
+const steps = list(ssteps, step, WS)
 const tags = list(stags, TAG, WS)
 const text = list(stext, PHRASE, WS)
 
@@ -98,22 +100,24 @@ function transformScenario ($scenario) {
         type: 'summary',
         text: i.data[0]
       })),
-      ...$scenario[ssteps][0].data.map(i => ({
-        ...{
-          type: 'step',
-          subtype: i.data[1].toLowerCase(),
-          nodes: [
-            { type: 'definition', text: i.data[2] },
-            { type: 'token', subtype: 'keyword', text: i.data[1] }
-          ]
-        },
-        ...(() => {
-          const hash = {}
-          hash[sfrom] = i.from
-          hash[sto] = i.to
-          return hash
-        })()
-      })),
+      ...$scenario[ssteps][0][sstep].map(i => {
+        return {
+          ...{
+            type: 'step',
+            subtype: i.data[0].data[1].toLowerCase(),
+            nodes: [
+              { type: 'definition', text: i.data[0].data[2] },
+              { type: 'token', subtype: 'keyword', text: i.data[0].data[1] }
+            ]
+          },
+          ...(() => {
+            const hash = {}
+            hash[sfrom] = i.from
+            hash[sto] = i.to
+            return hash
+          })()
+        }
+      }),
       {
         subtype: 'keyword',
         text: $scenario[sscenario][0].data[0],

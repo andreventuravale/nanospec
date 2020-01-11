@@ -37,6 +37,7 @@
   "homepage": "https://github.com/andreventuravale/nanospec#readme",
   "devDependencies": {
     "chai": "^4.2.0",
+    "clipboardy": "^2.1.0",
     "coveralls": "^3.0.4",
     "lodash": "^4.17.15",
     "mocha": "^6.1.4",
