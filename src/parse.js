@@ -1,24 +1,50 @@
-const {
-  compose,
-  list,
-  optional,
-  token
-} = require('nanogram')
+const { compose, list, optional, token } = require('nanogram')
 
-const BACKGROUND = token(Symbol.for('background'), /background/i)
-const COLON = token(Symbol.for('colon'), /:/)
-const FEATURE = token(Symbol.for('feature'), /feature/i)
-const PHRASE = token(Symbol.for('phrase'), /(?!(?:given|when|then|and|but)[ \t])[^\s]+([ \t]+[^\s]+)*/yi)
-const SCENARIO = token(Symbol.for('scenario'), /(scenario|example)/i)
-const STEP = token(Symbol.for('phrase'), /(?:(given|when|then|and|but)[ \t]+)([^\r\n]+)/i)
+const sbackground = Symbol.for('background')
+const scolon = Symbol.for('colon')
+const sfeature = Symbol.for('feature')
+const sfrom = Symbol.for('from')
+const sphrase = Symbol.for('phrase')
+const sscenario = Symbol.for('scenario')
+const ssteps = Symbol.for('steps')
+const stags = Symbol.for('tags')
+const stext = Symbol.for('text')
+const sto = Symbol.for('to')
+const sutils = Symbol.for('utils')
+
+const BACKGROUND = token(sbackground, /background/i)
+const COLON = token(scolon, /:/)
+const FEATURE = token(sfeature, /feature/i)
+const PHRASE = token(sphrase, /(?!(?:given|when|then|and|but)[ \t])[^\s]+([ \t]+[^\s]+)*/yi)
+const SCENARIO = token(sscenario, /(scenario|example)/i)
+const STEP = token('step', /(?:(given|when|then|and|but)[ \t]+)([^\r\n]+)/i)
 const TAG = token('tag', /@\w+/i)
 const WS = token('ws', /\s+/ym)
 
-const text = list(Symbol.for('text'), PHRASE, WS)
+const steps = list(ssteps, STEP, WS)
+const tags = list(stags, TAG, WS)
+const text = list(stext, PHRASE, WS)
 
-const steps = list(Symbol.for('steps'), STEP, WS)
+const background = compose('background',
+  optional(WS),
+  BACKGROUND,
+  optional(WS),
+  COLON,
+  optional(WS),
+  optional(steps)
+)
 
-const tags = list(Symbol.for('tags'), TAG, WS)
+const scenario = compose('scenario',
+  optional(WS),
+  SCENARIO,
+  optional(WS),
+  COLON,
+  optional(WS),
+  PHRASE,
+  optional(WS),
+  optional(text),
+  optional(steps)
+)
 
 const feature = compose('feature',
   WS,
@@ -32,32 +58,32 @@ const feature = compose('feature',
   optional(text)
 )
 
-const scenario = compose('scenario',
-  optional(WS),
-  SCENARIO,
-  optional(WS),
-  COLON,
-  optional(WS),
-  PHRASE,
-  optional(WS),
-  /* TODO GROUP
-  [choose|group|or|single](
-    optional(text),
-    optional(steps)
-  )
-  */
-  optional(text),
-  optional(steps)
-)
-
-const background = compose('background',
-  optional(WS),
-  BACKGROUND,
-  optional(WS),
-  COLON,
-  optional(WS),
-  optional(steps)
-)
+function transformBackground ($background) {
+  return {
+    type: 'statement',
+    subtype: 'background',
+    nodes: [
+      ...$background[ssteps][0].data.map(i => ({
+        type: 'step',
+        subtype: i.data[1].toLowerCase(),
+        nodes: [
+          { type: 'definition', text: i.data[2] },
+          { type: 'token', subtype: 'keyword', text: i.data[1] }
+        ]
+      })),
+      {
+        subtype: 'keyword',
+        text: $background[sbackground][0].data[0],
+        type: 'token'
+      },
+      {
+        subtype: 'colon',
+        text: $background[scolon][0].data[0],
+        type: 'token'
+      }
+    ]
+  }
+}
 
 function transformScenario ($scenario) {
   const metadata = {
@@ -66,13 +92,13 @@ function transformScenario ($scenario) {
     nodes: [
       {
         type: 'title',
-        text: $scenario[Symbol.for('phrase')][0].data[0]
+        text: $scenario[sphrase][0].data[0]
       },
-      ...$scenario[Symbol.for('text')][0].data.map(i => ({
+      ...$scenario[stext][0].data.map(i => ({
         type: 'summary',
         text: i.data[0]
       })),
-      ...$scenario[Symbol.for('steps')][0].data.map(i => ({
+      ...$scenario[ssteps][0].data.map(i => ({
         ...{
           type: 'step',
           subtype: i.data[1].toLowerCase(),
@@ -82,27 +108,27 @@ function transformScenario ($scenario) {
           ]
         },
         ...(() => {
-          const t = {}
-          t[Symbol.for('from')] = i.from
-          t[Symbol.for('to')] = i.to
-          return t
+          const hash = {}
+          hash[sfrom] = i.from
+          hash[sto] = i.to
+          return hash
         })()
       })),
       {
         subtype: 'keyword',
-        text: $scenario[Symbol.for('scenario')][0].data[0],
+        text: $scenario[sscenario][0].data[0],
         type: 'token'
       },
       {
         subtype: 'colon',
-        text: $scenario[Symbol.for('colon')][0].data[0],
+        text: $scenario[scolon][0].data[0],
         type: 'token'
       }
     ]
   }
 
-  metadata[Symbol.for('utils')] = {
-    locationOf: node => [node[Symbol.for('from')], node[Symbol.for('to')]]
+  metadata[sutils] = {
+    locationOf: node => [node[sfrom], node[sto]]
   }
 
   return metadata
@@ -115,51 +141,24 @@ function transformFeature ($feature) {
     nodes: [
       {
         type: 'title',
-        text: $feature[Symbol.for('phrase')][0].data[0]
+        text: $feature[sphrase][0].data[0]
       },
-      ...$feature[Symbol.for('text')][0].data.map(i => ({
+      ...$feature[stext][0].data.map(i => ({
         type: 'summary',
         text: i.data[0]
       })),
-      ...$feature[Symbol.for('tags')][0].data.map(i => ({
+      ...$feature[stags][0].data.map(i => ({
         type: 'tag',
         text: i.data[0]
       })),
       {
         subtype: 'keyword',
-        text: $feature[Symbol.for('feature')][0].data[0],
+        text: $feature[sfeature][0].data[0],
         type: 'token'
       },
       {
         subtype: 'colon',
-        text: $feature[Symbol.for('colon')][0].data[0],
-        type: 'token'
-      }
-    ]
-  }
-}
-
-function transformBackground ($background) {
-  return {
-    type: 'statement',
-    subtype: 'background',
-    nodes: [
-      ...$background[Symbol.for('steps')][0].data.map(i => ({
-        type: 'step',
-        subtype: i.data[1].toLowerCase(),
-        nodes: [
-          { type: 'definition', text: i.data[2] },
-          { type: 'token', subtype: 'keyword', text: i.data[1] }
-        ]
-      })),
-      {
-        subtype: 'keyword',
-        text: $background[Symbol.for('background')][0].data[0],
-        type: 'token'
-      },
-      {
-        subtype: 'colon',
-        text: $background[Symbol.for('colon')][0].data[0],
+        text: $feature[scolon][0].data[0],
         type: 'token'
       }
     ]
@@ -176,24 +175,24 @@ function stripComments (input) {
 function parse (rawInput) {
   const input = stripComments(rawInput)
 
-  let offset = 0
+  const offset = 0
 
-  let $feature = feature(input, offset)
-
-  if ($feature.found) {
-    return transformFeature($feature)
-  }
-
-  let $background = background(input, offset)
+  const $background = background(input, offset)
 
   if ($background.found) {
     return transformBackground($background)
   }
 
-  let $scenario = scenario(input, offset)
+  const $scenario = scenario(input, offset)
 
   if ($scenario.found) {
     return transformScenario($scenario)
+  }
+
+  const $feature = feature(input, offset)
+
+  if ($feature.found) {
+    return transformFeature($feature)
   }
 }
 
