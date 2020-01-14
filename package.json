@@ -49,6 +49,6 @@
     "node": ">=8"
   },
   "dependencies": {
-    "nanogram": "0.0.3"
+    "nanogram": "0.0.4"
   }
 }
