@@ -7,21 +7,23 @@ const {
 } = require('nanogram')
 
 const noWsChannel = token(noWhitespace)
+const noWsVisibleChannel = noWsChannel()
 const rawChannel = token()
+const rawVisibleChannel = rawChannel()
 
-const CELL = rawChannel()('CELL', /[^|\n\r]*/y)(data => data.trim())
-const NL = rawChannel()('NL', /[\r\n]+/ym)()
-const PHRASE = rawChannel()('PHRASE', /[^\s]+(?:[ \t]+[^\s]+)*/yi)()
-const PIPE = rawChannel()('PIPE', /\|/y)()
-const WS = rawChannel()('WS', /[ \t]+/ym)()
+const CELL = rawVisibleChannel('CELL', /[^|\n\r]*/y)(data => data.trim())
+const NL = rawVisibleChannel('NL', /[\r\n]+/ym)()
+const PHRASE = rawVisibleChannel('PHRASE', /[^\s]+(?:[ \t]+[^\s]+)*/yi)()
+const PIPE = rawVisibleChannel('PIPE', /\|/y)()
+const WS = rawVisibleChannel('WS', /[ \t]+/ym)()
 
-const BACKGROUND = noWsChannel()('BACKGROUND', /background/yi)()
-const COLON = noWsChannel()('COLON', /:/y)()
-const FEATURE = noWsChannel()('FEATURE', /feature/yi)()
-const SCENARIO = noWsChannel()('SCENARIO', /(?:scenario|example)/yi)()
-const STEP_DEF = noWsChannel()('STEP_DEF', /(?:(given|when|then|and|but) )([^\n]+)/yi)()
-const TAG = noWsChannel()('TAG', /@\w+/yi)()
-const UNLIKE_STEP_PHRASE = noWsChannel()('UNLIKE_STEP_PHRASE', /(?!(?:given|when|then|and|but) )[^\s]+(?:[ \t]+[^\s]+)*/yi)()
+const BACKGROUND = noWsVisibleChannel('BACKGROUND', /background/yi)()
+const COLON = noWsVisibleChannel('COLON', /:/y)()
+const FEATURE = noWsVisibleChannel('FEATURE', /feature/yi)()
+const SCENARIO = noWsVisibleChannel('SCENARIO', /(?:scenario|example)/yi)()
+const STEP_DEF = noWsVisibleChannel('STEP_DEF', /(?:(given|when|then|and|but) )([^\n]+)/yi)()
+const TAG = noWsVisibleChannel('TAG', /@\w+/yi)()
+const UNLIKE_STEP_PHRASE = noWsVisibleChannel('UNLIKE_STEP_PHRASE', /(?!(?:given|when|then|and|but) )[^\s]+(?:[ \t]+[^\s]+)*/yi)()
 
 const rowContent = list('rowContent', CELL, PIPE)(
   list => list.map(
