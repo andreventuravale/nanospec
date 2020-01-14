@@ -17,6 +17,14 @@ suite('Parser / Tag', () => {
       'subtype': 'feature',
       'nodes': [
         {
+          'type': 'tag',
+          'text': '@foo'
+        },
+        {
+          'type': 'tag',
+          'text': '@bar'
+        },
+        {
           'type': 'title',
           'text': 'Ad nisi officia ullamco ex commodo.'
         },
@@ -31,14 +39,6 @@ suite('Parser / Tag', () => {
         {
           'type': 'summary',
           'text': 'Duis consectetur nisi ullamco qui ex.'
-        },
-        {
-          'type': 'tag',
-          'text': '@foo'
-        },
-        {
-          'type': 'tag',
-          'text': '@bar'
         },
         {
           'subtype': 'keyword',

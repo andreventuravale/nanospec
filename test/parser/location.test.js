@@ -2,7 +2,7 @@ const { expect } = require('chai')
 const { filter } = require('lodash')
 const { parse } = require('./util')
 
-suite('Parser / Location', () => {
+suite.skip('Parser / Location', () => {
   suite('Give access to location opaque data by means of symbols', () => {
     test('For senarios', () => {
       const metadata = parse(`

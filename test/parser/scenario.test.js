@@ -2,7 +2,7 @@ const { expect } = require('chai')
 const { parse } = require('./util')
 
 suite('Parser / Scenario', () => {
-  test('Parses a basic scenario', () => {
+  test('Parses a scenario with some steps', () => {
     const metadata = parse(`
 
       Scenario : Quis autem vel eum
@@ -79,7 +79,7 @@ suite('Parser / Scenario', () => {
     })
   })
 
-  test('Parses a scenario with a summary', () => {
+  test('Parses a scenario with a summary and some steps', () => {
     const metadata = parse(`
 
       Scenario : Quis autem vel eum

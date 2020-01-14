@@ -1,31 +1,70 @@
 const { compose, list, optional, token } = require('nanogram')
 
-const sbackground = Symbol.for('background')
-const scolon = Symbol.for('colon')
-const sfeature = Symbol.for('feature')
-const sfrom = Symbol.for('from')
-const sphrase = Symbol.for('phrase')
-const sscenario = Symbol.for('scenario')
-const sstep = Symbol.for('step')
-const ssteps = Symbol.for('steps')
-const stags = Symbol.for('tags')
-const stext = Symbol.for('text')
-const sto = Symbol.for('to')
-const sutils = Symbol.for('utils')
+const BACKGROUND = token('BACKGROUND', /background/yi)()
+const CELL = token('CELL', / *[^|\n]+ */y)()
+const COLON = token('COLON', /:/y)()
+const FEATURE = token('FEATURE', /feature/yi)()
+const NL = token('NL', /\n/ym)()
+const PHRASE = token('PHRASE', /(?!(?:given|when|then|and|but) )[^\s]+(?:[ \t]+[^\s]+)*/yi)()
+const PIPE = token('PIPE', / *(\|) */y)()
+const SCENARIO = token('SCENARIO', /(?:scenario|example)/yi)()
+const STEP = token('STEP', /(?:(given|when|then|and|but) )([^\n]+)/yi)()
+const TAG = token('TAG', /@\w+/yi)()
+const WS = token('WS', /\s+/ym)()
 
-const BACKGROUND = token(sbackground, /background/i)
-const COLON = token(scolon, /:/)
-const FEATURE = token(sfeature, /feature/i)
-const PHRASE = token(sphrase, /(?!(?:given|when|then|and|but)[ \t])[^\s]+([ \t]+[^\s]+)*/yi)
-const SCENARIO = token(sscenario, /(scenario|example)/i)
-const STEP = token('step', /(?:(given|when|then|and|but)[ \t]+)([^\r\n]+)/i)
-const TAG = token('tag', /@\w+/i)
-const WS = token('ws', /\s+/ym)
+const row = compose('row',
+  PIPE,
+  list('rowcontent', CELL, PIPE),
+  PIPE
+)()
 
-const step = compose(sstep, STEP)
-const steps = list(ssteps, step, WS)
-const tags = list(stags, TAG, WS)
-const text = list(stext, PHRASE, WS)
+const table = compose('table',
+  NL,
+  list('tablecontent', row, NL)
+)()
+
+const step = compose('step',
+  STEP,
+  optional(table)
+)()
+
+const steps = list('steps', step, WS)(
+  list => list.map(
+    ({ data: { STEP: { $1, $2 } } }) => ({
+      'type': 'step',
+      'subtype': $1.toLowerCase(),
+      'nodes': [
+        {
+          'type': 'definition',
+          'text': $2
+        },
+        {
+          'type': 'token',
+          'subtype': 'keyword',
+          'text': $1
+        }
+      ]
+    })
+  )
+)
+
+const tags = list('tags', TAG, WS)(
+  list => list.map(
+    ({ data }) => ({
+      'type': 'tag',
+      'text': data
+    })
+  )
+)
+
+const summary = list('summary', PHRASE, WS)(
+  list => list.map(
+    ({ data }) => ({
+      'type': 'summary',
+      'text': data
+    })
+  )
+)
 
 const background = compose('background',
   optional(WS),
@@ -33,8 +72,37 @@ const background = compose('background',
   optional(WS),
   COLON,
   optional(WS),
+  optional(PHRASE),
+  optional(WS),
+  optional(summary),
+  optional(WS),
   optional(steps)
-)
+)((data) => {
+  const { PHRASE = false, BACKGROUND, COLON, summary = [], steps = [] } = data
+
+  return ({
+    'type': 'statement',
+    'subtype': 'background',
+    'nodes': [
+      PHRASE && {
+        'type': 'title',
+        'text': PHRASE
+      },
+      ...summary,
+      ...steps,
+      {
+        'type': 'token',
+        'subtype': 'keyword',
+        'text': BACKGROUND
+      },
+      {
+        'type': 'token',
+        'subtype': 'colon',
+        'text': COLON
+      }
+    ].filter(valid => valid)
+  })
+})
 
 const scenario = compose('scenario',
   optional(WS),
@@ -44,130 +112,73 @@ const scenario = compose('scenario',
   optional(WS),
   PHRASE,
   optional(WS),
-  optional(text),
+  optional(summary),
+  optional(WS),
   optional(steps)
-)
+)((data) => {
+  const { PHRASE, SCENARIO, COLON, summary = [], steps = [] } = data
+
+  return ({
+    'type': 'statement',
+    'subtype': 'scenario',
+    'nodes': [
+      {
+        'type': 'title',
+        'text': PHRASE
+      },
+      ...summary,
+      ...steps,
+      {
+        'type': 'token',
+        'subtype': 'keyword',
+        'text': SCENARIO
+      },
+      {
+        'type': 'token',
+        'subtype': 'colon',
+        'text': COLON
+      }
+    ]
+  })
+})
 
 const feature = compose('feature',
-  WS,
+  optional(WS),
   optional(tags),
+  optional(WS),
   FEATURE,
   optional(WS),
   COLON,
   WS,
   PHRASE,
   WS,
-  optional(text)
-)
+  optional(summary)
+)((data) => {
+  const { tags = [], PHRASE, FEATURE, COLON, summary = [] } = data
 
-function transformBackground ($background) {
-  return {
-    type: 'statement',
-    subtype: 'background',
-    nodes: [
-      ...$background[ssteps][0].data.map(i => ({
-        type: 'step',
-        subtype: i.data[1].toLowerCase(),
-        nodes: [
-          { type: 'definition', text: i.data[2] },
-          { type: 'token', subtype: 'keyword', text: i.data[1] }
-        ]
-      })),
+  return ({
+    'type': 'statement',
+    'subtype': 'feature',
+    'nodes': [
+      ...tags,
       {
-        subtype: 'keyword',
-        text: $background[sbackground][0].data[0],
-        type: 'token'
+        'type': 'title',
+        'text': PHRASE
+      },
+      ...summary,
+      {
+        'type': 'token',
+        'subtype': 'keyword',
+        'text': FEATURE
       },
       {
-        subtype: 'colon',
-        text: $background[scolon][0].data[0],
-        type: 'token'
+        'type': 'token',
+        'subtype': 'colon',
+        'text': COLON
       }
     ]
-  }
-}
-
-function transformScenario ($scenario) {
-  const metadata = {
-    type: 'statement',
-    subtype: 'scenario',
-    nodes: [
-      {
-        type: 'title',
-        text: $scenario[sphrase][0].data[0]
-      },
-      ...$scenario[stext][0].data.map(i => ({
-        type: 'summary',
-        text: i.data[0]
-      })),
-      ...$scenario[ssteps][0][sstep].map(i => {
-        return {
-          ...{
-            type: 'step',
-            subtype: i.data[0].data[1].toLowerCase(),
-            nodes: [
-              { type: 'definition', text: i.data[0].data[2] },
-              { type: 'token', subtype: 'keyword', text: i.data[0].data[1] }
-            ]
-          },
-          ...(() => {
-            const hash = {}
-            hash[sfrom] = i.from
-            hash[sto] = i.to
-            return hash
-          })()
-        }
-      }),
-      {
-        subtype: 'keyword',
-        text: $scenario[sscenario][0].data[0],
-        type: 'token'
-      },
-      {
-        subtype: 'colon',
-        text: $scenario[scolon][0].data[0],
-        type: 'token'
-      }
-    ]
-  }
-
-  metadata[sutils] = {
-    locationOf: node => [node[sfrom], node[sto]]
-  }
-
-  return metadata
-}
-
-function transformFeature ($feature) {
-  return {
-    type: 'statement',
-    subtype: 'feature',
-    nodes: [
-      {
-        type: 'title',
-        text: $feature[sphrase][0].data[0]
-      },
-      ...$feature[stext][0].data.map(i => ({
-        type: 'summary',
-        text: i.data[0]
-      })),
-      ...$feature[stags][0].data.map(i => ({
-        type: 'tag',
-        text: i.data[0]
-      })),
-      {
-        subtype: 'keyword',
-        text: $feature[sfeature][0].data[0],
-        type: 'token'
-      },
-      {
-        subtype: 'colon',
-        text: $feature[scolon][0].data[0],
-        type: 'token'
-      }
-    ]
-  }
-}
+  })
+})
 
 function stripComments (input) {
   return input
@@ -184,19 +195,19 @@ function parse (rawInput) {
   const $background = background(input, offset)
 
   if ($background.found) {
-    return transformBackground($background)
+    return $background.data
   }
 
   const $scenario = scenario(input, offset)
 
   if ($scenario.found) {
-    return transformScenario($scenario)
+    return $scenario.data
   }
 
   const $feature = feature(input, offset)
 
   if ($feature.found) {
-    return transformFeature($feature)
+    return $feature.data
   }
 }
 
