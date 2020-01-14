@@ -94,7 +94,7 @@ suite('Parser / Data Tables', () => {
     })
   })
 
-  test.only('Parses a step with empty cells', () => {
+  test('Parses a step with empty cells', () => {
     const source = `
       Scenario : Tables
 
@@ -104,7 +104,6 @@ suite('Parser / Data Tables', () => {
           |      | waldo |
     `
 
-    // throw '>>>' + source.slice(59, 65)
     const metadata = parse(source)
 
     expect(metadata).to.deep.eql({
