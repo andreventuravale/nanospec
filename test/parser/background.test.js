@@ -2,6 +2,34 @@ const { expect } = require('chai')
 const { parse } = require('./util')
 
 suite('Parser / Background', () => {
+  test('Parses a background with a title', () => {
+    const metadata = parse(`
+
+      Background : Ex laborum duis sint ut.
+    `)
+
+    expect(metadata).to.deep.eql({
+      'type': 'statement',
+      'subtype': 'background',
+      'nodes': [
+        {
+          'type': 'title',
+          'text': 'Ex laborum duis sint ut.'
+        },
+        {
+          'type': 'token',
+          'subtype': 'keyword',
+          'text': 'Background'
+        },
+        {
+          'type': 'token',
+          'subtype': 'colon',
+          'text': ':'
+        }
+      ]
+    })
+  })
+
   test('Parses a background with some steps', () => {
     const metadata = parse(`
 
