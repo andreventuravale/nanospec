@@ -19,7 +19,7 @@ const COLON = noWsChannel()('COLON', /:/y)()
 const FEATURE = noWsChannel()('FEATURE', /feature/yi)()
 const PIPE = noWsChannel()('PIPE', / *(\|) */y)()
 const SCENARIO = noWsChannel()('SCENARIO', /(?:scenario|example)/yi)()
-const STEP_DEF = noWsChannel()('STEP', /(?:(given|when|then|and|but) )([^\n]+)/yi)()
+const STEP_DEF = noWsChannel()('STEP_DEF', /(?:(given|when|then|and|but) )([^\n]+)/yi)()
 const TAG = noWsChannel()('TAG', /@\w+/yi)()
 const UNLIKE_STEP_PHRASE = noWsChannel()('UNLIKE_STEP_PHRASE', /(?!(?:given|when|then|and|but) )[^\s]+(?:[ \t]+[^\s]+)*/yi)()
 
@@ -82,7 +82,7 @@ const step = compose('step',
 
 const steps = list('steps', step, NL)(
   list => list.map(
-    ({ data: { STEP: { $1, $2 }, table = false } }) => {
+    ({ data: { STEP_DEF: { $1, $2 }, table = false } }) => {
       return {
         'type': 'step',
         'subtype': $1.toLowerCase(),
