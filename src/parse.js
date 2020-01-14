@@ -21,7 +21,7 @@ const BACKGROUND = noWsVisibleChannel('BACKGROUND', /background/yi)()
 const COLON = noWsVisibleChannel('COLON', /:/y)()
 const FEATURE = noWsVisibleChannel('FEATURE', /feature/yi)()
 const SCENARIO = noWsVisibleChannel('SCENARIO', /(?:scenario|example)/yi)()
-const STEP_DEF = noWsVisibleChannel('STEP_DEF', /(?:(given|when|then|and|but) )([^\n]+)/yi)()
+const STEP_DEF = noWsVisibleChannel('STEP_DEF', /(?:(given|when|then|and|but)[ \t]+)([^\n]+)/yi)()
 const TAG = noWsVisibleChannel('TAG', /@\w+/yi)()
 const UNLIKE_STEP_PHRASE = noWsVisibleChannel('UNLIKE_STEP_PHRASE', /(?!(?:given|when|then|and|but) )[^\s]+(?:[ \t]+[^\s]+)*/yi)()
 
