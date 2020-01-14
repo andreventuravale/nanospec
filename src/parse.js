@@ -1,45 +1,65 @@
-const { compose, list, optional, token } = require('nanogram')
+const {
+  compose,
+  list,
+  noWhitespace,
+  optional,
+  token
+} = require('nanogram')
 
-const BACKGROUND = token('BACKGROUND', /background/yi)()
-const BLANK = token('BLANK', /[ \t]*/y)()
-const CELL = token('CELL', / *([^|\n]+) */y)(({ $0 = '' }) => $0.trim())
-const COLON = token('COLON', /:/y)()
-const FEATURE = token('FEATURE', /feature/yi)()
-const NL = token('NL', /\n/ym)()
-const PHRASE = token('PHRASE', /(?!(?:given|when|then|and|but) )[^\s]+(?:[ \t]+[^\s]+)*/yi)()
-const PIPE = token('PIPE', / *(\|) */y)()
-const SCENARIO = token('SCENARIO', /(?:scenario|example)/yi)()
-const STEP = token('STEP', /(?:(given|when|then|and|but) )([^\n]+)/yi)()
-const TAG = token('TAG', /@\w+/yi)()
-const WS = token('WS', /\s+/ym)()
+const noWsChannel = token(noWhitespace)
+const rawChannel = token()
 
-const rowContent = list('rowContent', CELL, PIPE)(
+const NL = rawChannel()('NL', /[\r\n]+/ym)()
+const PHRASE = rawChannel()('PHRASE', /[^\s]+(?:[ \t]+[^\s]+)*/yi)()
+const WS = rawChannel()('WS', /[ \t]+/ym)()
+
+const BACKGROUND = noWsChannel()('BACKGROUND', /background/yi)()
+const CELL = noWsChannel()('CELL', /[^|\s]+(?:[ \t]+[^|\s]+)*/y)()
+const COLON = noWsChannel()('COLON', /:/y)()
+const FEATURE = noWsChannel()('FEATURE', /feature/yi)()
+const PIPE = noWsChannel()('PIPE', / *(\|) */y)()
+const SCENARIO = noWsChannel()('SCENARIO', /(?:scenario|example)/yi)()
+const STEP_DEF = noWsChannel()('STEP', /(?:(given|when|then|and|but) )([^\n]+)/yi)()
+const TAG = noWsChannel()('TAG', /@\w+/yi)()
+const UNLIKE_STEP_PHRASE = noWsChannel()('UNLIKE_STEP_PHRASE', /(?!(?:given|when|then|and|but) )[^\s]+(?:[ \t]+[^\s]+)*/yi)()
+
+const cell = compose('cell',
+  CELL
+)(
+  ({ CELL }) => {
+    return CELL
+  }
+)
+
+const rowContent = list('rowContent', cell, PIPE)(
   list => list.map(
-    ({ data }) => ({
-      'type': 'cell',
-      'text': data
-    })
+    ({ data }) => {
+      return {
+        'type': 'cell',
+        'text': data
+      }
+    }
   )
 )
 
 const row = compose('row',
-  BLANK,
   PIPE,
-  BLANK,
   rowContent,
-  BLANK,
-  PIPE,
-  BLANK
+  PIPE
 )(
-  ({ rowContent }) => rowContent
+  ({ rowContent }) => {
+    return rowContent
+  }
 )
 
 const tableBody = list('tableBody', row, NL)(
   list => list.map(
-    ({ data }) => ({
-      'type': 'row',
-      'nodes': data
-    })
+    ({ data }) => {
+      return {
+        'type': 'row',
+        'nodes': data
+      }
+    }
   )
 )
 
@@ -47,18 +67,20 @@ const table = compose('table',
   NL,
   tableBody
 )(
-  ({ tableBody }) => ({
-    'type': 'table',
-    'nodes': tableBody
-  })
+  ({ tableBody }) => {
+    return {
+      'type': 'table',
+      'nodes': tableBody
+    }
+  }
 )
 
 const step = compose('step',
-  STEP,
+  STEP_DEF,
   optional(table)
 )()
 
-const steps = list('steps', step, WS)(
+const steps = list('steps', step, NL)(
   list => list.map(
     ({ data: { STEP: { $1, $2 }, table = false } }) => {
       return {
@@ -83,37 +105,37 @@ const steps = list('steps', step, WS)(
 
 const tags = list('tags', TAG, WS)(
   list => list.map(
-    ({ data }) => ({
-      'type': 'tag',
-      'text': data
-    })
+    ({ data }) => {
+      return {
+        'type': 'tag',
+        'text': data
+      }
+    }
   )
 )
 
-const summary = list('summary', PHRASE, WS)(
+const summary = list('summary', UNLIKE_STEP_PHRASE, NL)(
   list => list.map(
-    ({ data }) => ({
-      'type': 'summary',
-      'text': data
-    })
+    ({ data }) => {
+      return {
+        'type': 'summary',
+        'text': data
+      }
+    }
   )
 )
 
 const background = compose('background',
-  optional(WS),
   BACKGROUND,
-  optional(WS),
   COLON,
   optional(WS),
   optional(PHRASE),
-  optional(WS),
   optional(summary),
-  optional(WS),
   optional(steps)
 )((data) => {
-  const { PHRASE = false, BACKGROUND, COLON, summary = [], steps = [] } = data
+  const { BACKGROUND, COLON, PHRASE = false, summary = [], steps = [] } = data
 
-  return ({
+  return {
     'type': 'statement',
     'subtype': 'background',
     'nodes': [
@@ -134,24 +156,20 @@ const background = compose('background',
         'text': COLON
       }
     ].filter(valid => valid)
-  })
+  }
 })
 
 const scenario = compose('scenario',
-  optional(WS),
   SCENARIO,
-  optional(WS),
   COLON,
   optional(WS),
   PHRASE,
-  optional(WS),
   optional(summary),
-  optional(WS),
   optional(steps)
 )((data) => {
-  const { PHRASE, SCENARIO, COLON, summary = [], steps = [] } = data
+  const { SCENARIO, COLON, PHRASE, summary = [], steps = [] } = data
 
-  return ({
+  return {
     'type': 'statement',
     'subtype': 'scenario',
     'nodes': [
@@ -172,24 +190,20 @@ const scenario = compose('scenario',
         'text': COLON
       }
     ]
-  })
+  }
 })
 
 const feature = compose('feature',
-  optional(WS),
   optional(tags),
-  optional(WS),
   FEATURE,
-  optional(WS),
   COLON,
-  WS,
+  optional(WS),
   PHRASE,
-  WS,
   optional(summary)
 )((data) => {
-  const { tags = [], PHRASE, FEATURE, COLON, summary = [] } = data
+  const { tags = [], FEATURE, COLON, PHRASE, summary = [] } = data
 
-  return ({
+  return {
     'type': 'statement',
     'subtype': 'feature',
     'nodes': [
@@ -210,7 +224,7 @@ const feature = compose('feature',
         'text': COLON
       }
     ]
-  })
+  }
 })
 
 function stripComments (input) {

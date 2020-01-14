@@ -12,8 +12,6 @@ suite('Parser / Background', () => {
         And Occaecat aliquip nisi ex ipsum ullamco amet id eu nisi nulla sit id ea occaecat
     `)
 
-    require('clipboardy').writeSync(JSON.stringify(metadata, 0, 2))
-
     expect(metadata).to.deep.eql({
       'type': 'statement',
       'subtype': 'background',
