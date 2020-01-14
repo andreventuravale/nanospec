@@ -9,46 +9,38 @@ const {
 const noWsChannel = token(noWhitespace)
 const rawChannel = token()
 
+const CELL = rawChannel()('CELL', /[^|\n\r]*/y)(data => data.trim())
 const NL = rawChannel()('NL', /[\r\n]+/ym)()
 const PHRASE = rawChannel()('PHRASE', /[^\s]+(?:[ \t]+[^\s]+)*/yi)()
+const PIPE = rawChannel()('PIPE', /\|/y)()
 const WS = rawChannel()('WS', /[ \t]+/ym)()
 
 const BACKGROUND = noWsChannel()('BACKGROUND', /background/yi)()
-const CELL = noWsChannel()('CELL', /[^|\s]+(?:[ \t]+[^|\s]+)*/y)()
 const COLON = noWsChannel()('COLON', /:/y)()
 const FEATURE = noWsChannel()('FEATURE', /feature/yi)()
-const PIPE = noWsChannel()('PIPE', / *(\|) */y)()
 const SCENARIO = noWsChannel()('SCENARIO', /(?:scenario|example)/yi)()
 const STEP_DEF = noWsChannel()('STEP_DEF', /(?:(given|when|then|and|but) )([^\n]+)/yi)()
 const TAG = noWsChannel()('TAG', /@\w+/yi)()
 const UNLIKE_STEP_PHRASE = noWsChannel()('UNLIKE_STEP_PHRASE', /(?!(?:given|when|then|and|but) )[^\s]+(?:[ \t]+[^\s]+)*/yi)()
 
-const cell = compose('cell',
-  CELL
-)(
-  ({ CELL }) => {
-    return CELL
-  }
-)
-
-const rowContent = list('rowContent', cell, PIPE)(
+const rowContent = list('rowContent', CELL, PIPE)(
   list => list.map(
-    ({ data }) => {
+    CELL => {
       return {
         'type': 'cell',
-        'text': data
+        'text': CELL.data
       }
     }
   )
 )
 
 const row = compose('row',
+  optional(WS),
   PIPE,
-  rowContent,
-  PIPE
+  rowContent
 )(
-  ({ rowContent }) => {
-    return rowContent
+  ({ rowContent }, { found }) => {
+    return found && rowContent.slice(0, rowContent.length - 1)
   }
 )
 
