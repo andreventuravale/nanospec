@@ -1,7 +1,8 @@
 const { compose, list, optional, token } = require('nanogram')
 
 const BACKGROUND = token('BACKGROUND', /background/yi)()
-const CELL = token('CELL', / *[^|\n]+ */y)()
+const BLANK = token('BLANK', /[ \t]*/y)()
+const CELL = token('CELL', / *([^|\n]+) */y)(({ $0 = '' }) => $0.trim())
 const COLON = token('COLON', /:/y)()
 const FEATURE = token('FEATURE', /feature/yi)()
 const NL = token('NL', /\n/ym)()
@@ -12,16 +13,45 @@ const STEP = token('STEP', /(?:(given|when|then|and|but) )([^\n]+)/yi)()
 const TAG = token('TAG', /@\w+/yi)()
 const WS = token('WS', /\s+/ym)()
 
+const rowContent = list('rowContent', CELL, PIPE)(
+  list => list.map(
+    ({ data }) => ({
+      'type': 'cell',
+      'text': data
+    })
+  )
+)
+
 const row = compose('row',
+  BLANK,
   PIPE,
-  list('rowcontent', CELL, PIPE),
-  PIPE
-)()
+  BLANK,
+  rowContent,
+  BLANK,
+  PIPE,
+  BLANK
+)(
+  ({ rowContent }) => rowContent
+)
+
+const tableBody = list('tableBody', row, NL)(
+  list => list.map(
+    ({ data }) => ({
+      'type': 'row',
+      'nodes': data
+    })
+  )
+)
 
 const table = compose('table',
   NL,
-  list('tablecontent', row, NL)
-)()
+  tableBody
+)(
+  ({ tableBody }) => ({
+    'type': 'table',
+    'nodes': tableBody
+  })
+)
 
 const step = compose('step',
   STEP,
@@ -30,21 +60,24 @@ const step = compose('step',
 
 const steps = list('steps', step, WS)(
   list => list.map(
-    ({ data: { STEP: { $1, $2 } } }) => ({
-      'type': 'step',
-      'subtype': $1.toLowerCase(),
-      'nodes': [
-        {
-          'type': 'definition',
-          'text': $2
-        },
-        {
-          'type': 'token',
-          'subtype': 'keyword',
-          'text': $1
-        }
-      ]
-    })
+    ({ data: { STEP: { $1, $2 }, table = false } }) => {
+      return {
+        'type': 'step',
+        'subtype': $1.toLowerCase(),
+        'nodes': [
+          {
+            'type': 'definition',
+            'text': $2
+          },
+          {
+            'type': 'token',
+            'subtype': 'keyword',
+            'text': $1
+          },
+          table
+        ].filter(valid => valid)
+      }
+    }
   )
 )
 
