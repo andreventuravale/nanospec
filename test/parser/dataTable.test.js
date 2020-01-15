@@ -1,5 +1,5 @@
 const { expect } = require('chai')
-const { parse } = require('./util')
+const parse = require('../../src/parse')
 
 suite('Parser / Data Tables', () => {
   test('Parses a step with a data table', () => {

@@ -1,5 +1,5 @@
 const { expect } = require('chai')
-const { parse } = require('./util')
+const parse = require('../../src/parse')
 
 suite('Parser / Scenario', () => {
   test('Parses a scenario with some steps', () => {

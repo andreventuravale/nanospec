@@ -222,7 +222,7 @@ const feature = compose('feature',
 })
 
 function stripComments (input) {
-  return input
+  return (input || '')
     .split('\n')
     .filter(w => w.trim()[0] !== '#')
     .join('\n')
@@ -250,6 +250,8 @@ function parse (rawInput) {
   if ($feature.found) {
     return $feature.data
   }
+
+  throw new Error(`Unrecognizable input: ${rawInput}`)
 }
 
 module.exports = parse

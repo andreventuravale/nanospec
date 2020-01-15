@@ -1,5 +1,5 @@
 const { expect } = require('chai')
-const { parse } = require('./util')
+const parse = require('../../src/parse')
 
 suite('Parser / Background', () => {
   test('Parses a background with a title', () => {
