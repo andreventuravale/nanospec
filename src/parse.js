@@ -251,7 +251,7 @@ function parse (rawInput) {
     return $feature.data
   }
 
-  throw new Error(`Unrecognizable input: ${rawInput}`)
+  throw new Error(`Sorry I could not understand the gherkin:\n\n\`\`\`\n${rawInput}\n\`\`\`\n\nI was specting a feature, background, scenario, scenario outline, example, etc.\n`)
 }
 
 module.exports = parse
